@@ -1,0 +1,17 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: bank-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+error:
+  codes:
+    customerNotFound: BANK_ASSET_NOT_FOUND
+    downstreamUnavailable: ASSET_SOURCE_UNAVAILABLE

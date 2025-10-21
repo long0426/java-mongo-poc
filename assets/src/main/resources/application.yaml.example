@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: assets-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/assetdb
+      database: assetdb
+
+assets:
+  bank:
+    base-url: http://localhost:8081
+  securities:
+    base-url: http://localhost:8082
+  insurance:
+    base-url: http://localhost:8083
+  async:
+    thread-pool-size: 8
+  aggregation:
+    base-currency: TWD
+    timeout: 3s
+  mongo:
+    write-retry:
+      max-attempts: 3
+      backoff: 100ms
+  currency:
+    rates:
+      "TWD:TWD": 1.0
+      "USD:TWD": 32.0
+      "JPY:TWD": 0.23
+      "EUR:TWD": 35.0

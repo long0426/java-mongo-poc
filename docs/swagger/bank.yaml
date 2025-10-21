@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  title: Bank Asset API
+  version: 1.0.0
+paths:
+  /bank/customers/{customerId}/assets:
+    get:
+      summary: Get bank assets for a customer
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankAssetResponse'
+              examples:
+                sample:
+                  summary: Example bank asset payload
+                  value:
+                    customerId: "1234567890"
+                    bankAssets:
+                      - accountId: "ACC-1000-1734710400000"
+                        balance: 235678.45
+                        currency: TWD
+                      - accountId: "ACC-1001-1734710400500"
+                        balance: 1250.00
+                        currency: USD
+                    totalBalance: 236928.45
+                    currency: TWD
+                    traceId: "4b5a9b70-9b3f-4c4d-9d6d-6f9cfe5bbabc"
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    code: BANK_ASSET_NOT_FOUND
+                    message: Customer assets not found
+                    details:
+                      customerId: "1234567890"
+                    traceId: "b8c3d2ac-53e7-4501-a5be-2b5a7f897ed1"
+        '502':
+          description: Downstream unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                downstreamFailure:
+                  value:
+                    code: ASSET_SOURCE_UNAVAILABLE
+                    message: Downstream bank core service unavailable
+                    details:
+                      retryable: true
+                    traceId: "9f2cbbf3-61a3-4f89-a11c-c0ce1d273084"
+components:
+  schemas:
+    BankAssetResponse:
+      type: object
+      required: [customerId, bankAssets, totalBalance, currency, traceId]
+      properties:
+        customerId:
+          type: string
+        bankAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankAssetItem'
+        totalBalance:
+          type: number
+          format: double
+        currency:
+          type: string
+        traceId:
+          type: string
+    BankAssetItem:
+      type: object
+      required: [accountId, balance, currency]
+      properties:
+        accountId:
+          type: string
+          description: Unique account identifier within the bank core
+        balance:
+          type: number
+          format: double
+        currency:
+          type: string
+    ErrorResponse:
+      type: object
+      required: [code, message, traceId]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        traceId:
+          type: string

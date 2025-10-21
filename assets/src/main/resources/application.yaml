@@ -1,0 +1,33 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: assets-service
+  data:
+    mongodb:
+      uri: ${ASSETS_MONGODB_URI:mongodb://mongo:mongo@localhost:27017/assetdb?authSource=admin}
+      database: ${ASSETS_MONGODB_DATABASE:assetdb}
+
+assets:
+  bank:
+    base-url: ${ASSETS_BANK_BASE_URL:http://localhost:8081}
+  securities:
+    base-url: ${ASSETS_SECURITIES_BASE_URL:http://localhost:8082}
+  insurance:
+    base-url: ${ASSETS_INSURANCE_BASE_URL:http://localhost:8083}
+  async:
+    thread-pool-size: ${ASSETS_THREADPOOL_SIZE:8}
+  aggregation:
+    base-currency: ${ASSETS_BASE_CURRENCY:TWD}
+    timeout: ${ASSETS_AGGREGATION_TIMEOUT:3s}
+  mongo:
+    write-retry:
+      max-attempts: ${ASSETS_MONGO_WRITE_MAX_ATTEMPTS:3}
+      backoff: ${ASSETS_MONGO_WRITE_BACKOFF:100ms}
+  currency:
+    rates:
+      "TWD:TWD": 1.0
+      "USD:TWD": 32.0
+      "JPY:TWD": 0.23
+      "EUR:TWD": 35.0

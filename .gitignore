@@ -1,0 +1,32 @@
+# Gradle build outputs
+build/
+.gradle/
+.gradle-home/
+
+# Java artifacts
+target/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE directories
+.idea/
+.vscode/
+*.iml
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+
+.codex/

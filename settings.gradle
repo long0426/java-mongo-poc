@@ -1,0 +1,11 @@
+rootProject.name = "asset-aggregation"
+
+include("bank")
+include("securities")
+include("insurance")
+include("assets")
+
+project(":bank").projectDir = file("bank")
+project(":securities").projectDir = file("securities")
+project(":insurance").projectDir = file("insurance")
+project(":assets").projectDir = file("assets")

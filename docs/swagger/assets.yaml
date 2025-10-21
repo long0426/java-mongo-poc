@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Asset Aggregation API
+  version: 1.0.0
+paths:
+  /assets/customers/{customerId}:
+    get:
+      summary: Aggregate all assets for a customer
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregated asset response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregatedAssetResponse'
+              examples:
+                sample:
+                  value:
+                    customerId: "123"
+                    baseCurrency: TWD
+                    totalAssetValue: 2000000
+                    currencyBreakdown:
+                      - currency: TWD
+                        amount: 500000
+                      - currency: USD
+                        amount: 45000
+                    components:
+                      - source: BANK
+                        status: SUCCESS
+                        amountInBase: 350000
+                        sourceCurrency: TWD
+                        exchangeRate: 1.0
+                        rawTraceId: "bank-trace"
+                        fetchedAt: "2025-10-20T02:34:56Z"
+                        payloadRefId: "665b1f1e8f1d2c7a9b1a0001"
+                      - source: SECURITIES
+                        status: SUCCESS
+                        amountInBase: 1200000
+                        sourceCurrency: USD
+                        exchangeRate: 32.0
+                        rawTraceId: "sec-trace"
+                        fetchedAt: "2025-10-20T02:35:01Z"
+                        payloadRefId: "665b1f1e8f1d2c7a9b1a0002"
+                      - source: INSURANCE
+                        status: SUCCESS
+                        amountInBase: 450000
+                        sourceCurrency: TWD
+                        exchangeRate: 1.0
+                        rawTraceId: "ins-trace"
+                        fetchedAt: "2025-10-20T02:35:05Z"
+                        payloadRefId: "665b1f1e8f1d2c7a9b1a0003"
+                    aggregationStatus: COMPLETED
+                    aggregatedAt: "2025-10-20T02:35:06Z"
+                    traceId: "agg-trace"
+        '404':
+          description: Customer not found in staging
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Downstream asset source failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '504':
+          description: Aggregation timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                aggregationTimeout:
+                  value:
+                    code: ASSET_AGGREGATION_FAILED
+                    message: Failed to aggregate assets within SLA
+                    details:
+                      failedSources:
+                        - SECURITIES
+                        - INSURANCE
+                    traceId: "agg-timeout-trace"
+components:
+  schemas:
+    AggregatedAssetResponse:
+      type: object
+      required: [customerId, baseCurrency, totalAssetValue, currencyBreakdown, components, aggregationStatus, aggregatedAt, traceId]
+      properties:
+        customerId:
+          type: string
+        baseCurrency:
+          type: string
+        totalAssetValue:
+          type: number
+          format: double
+        currencyBreakdown:
+          type: array
+          items:
+            type: object
+            required: [currency, amount]
+            properties:
+              currency:
+                type: string
+              amount:
+                type: number
+                format: double
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregatedComponent'
+        aggregationStatus:
+          type: string
+          enum: [COMPLETED, PARTIAL, FAILED]
+        aggregatedAt:
+          type: string
+          format: date-time
+        traceId:
+          type: string
+    AggregatedComponent:
+      type: object
+      required: [source, status, amountInBase, sourceCurrency, exchangeRate, rawTraceId, fetchedAt]
+      properties:
+        source:
+          type: string
+          enum: [BANK, SECURITIES, INSURANCE]
+        status:
+          type: string
+          enum: [SUCCESS, MISSING, FAILED, TIMEOUT]
+          description: Aggregation outcome for the source
+        amountInBase:
+          type: number
+          format: double
+        sourceCurrency:
+          type: string
+        exchangeRate:
+          type: number
+          format: double
+        rawTraceId:
+          type: string
+        fetchedAt:
+          type: string
+          format: date-time
+        payloadRefId:
+          type: string
+          nullable: true
+          description: 參照對應 raw document `_id`
+    ErrorResponse:
+      $ref: './bank.yaml#/components/schemas/ErrorResponse'

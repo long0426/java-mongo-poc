@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  title: Securities Asset API
+  version: 1.0.0
+paths:
+  /securities/customers/{customerId}/assets:
+    get:
+      summary: Get securities assets for a customer
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecuritiesAssetResponse'
+              examples:
+                sample:
+                  value:
+                    customerId: "123"
+                    securitiesAssets:
+                      - securityType: stock
+                        symbol: XYZ
+                        holdings: 100
+                        marketValue: 56000
+                        currency: TWD
+                        riskLevel: MEDIUM
+                        lastUpdated: "2025-10-20T02:34:56Z"
+                      - securityType: bond
+                        symbol: US10Y
+                        holdings: 50000
+                        marketValue: 1500000
+                        currency: USD
+                        riskLevel: LOW
+                        lastUpdated: "2025-10-20T02:35:01Z"
+                    totalMarketValue: 1556000
+                    currency: TWD
+                    traceId: "a1b2c3d4-..."
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Downstream unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    SecuritiesAssetResponse:
+      type: object
+      required: [customerId, securitiesAssets, totalMarketValue, currency, traceId]
+      properties:
+        customerId:
+          type: string
+        securitiesAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityHolding'
+        totalMarketValue:
+          type: number
+          format: double
+        currency:
+          type: string
+        traceId:
+          type: string
+    SecurityHolding:
+      type: object
+      required: [securityType, symbol, holdings, marketValue, currency, riskLevel, lastUpdated]
+      properties:
+        securityType:
+          type: string
+        symbol:
+          type: string
+        holdings:
+          type: number
+        marketValue:
+          type: number
+          format: double
+        currency:
+          type: string
+        riskLevel:
+          type: string
+          description: Risk classification for the holding (LOW|MEDIUM|HIGH)
+        lastUpdated:
+          type: string
+          format: date-time
+    ErrorResponse:
+      $ref: './bank.yaml#/components/schemas/ErrorResponse'
