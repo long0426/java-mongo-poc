@@ -16,7 +16,7 @@
 
 2. **設定環境變數（以 assets 模組為例）**
    ```bash
-   export ASSETS_MONGODB_URI="mongodb://localhost:27017/assetdb"
+   export ASSETS_MONGODB_URI="mongodb://mongo:mongo@localhost:27017/assetdb?authSource=admin"
    export ASSETS_BANK_BASE_URL="http://localhost:8081"
    export ASSETS_SECURITIES_BASE_URL="http://localhost:8082"
    export ASSETS_INSURANCE_BASE_URL="http://localhost:8083"
