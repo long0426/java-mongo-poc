@@ -7,15 +7,15 @@
 
 ## 目錄結構
 ```
-assets/       # 整合服務與共用元件
-bank/         # 銀行模組
-securities/   # 證券模組
-insurance/    # 保險模組
-specs/001-asset-aggregation/ # 規格、計畫與任務文件
+assets/     # 整合服務與共用元件
+bank/       # 銀行模組
+securities/ # 證券模組
+insurance/  # 保險模組
+docs/       # 快速開始、API 規格與補充文件
 ```
 
 ## 快速開始
-- 建議依照 `specs/001-asset-aggregation/quickstart.md` 進行環境設定與驗證流程。
+- 建議依照 `docs/quickstart.md` 進行環境設定與驗證流程。
 - 所有模組皆使用 Gradle，透過 `./gradlew :module:bootRun` 啟動；MongoDB 可使用 Docker 執行 `mongo:8.0`。
 
 ## 配置重點
@@ -47,7 +47,7 @@ specs/001-asset-aggregation/ # 規格、計畫與任務文件
 - 建議在預備環境模擬下游錯誤，確認 `asset.aggregation.failure` 與 `asset.aggregation.raw.write{status="FAILED"}` 告警門檻設定。
 
 ## 相關文件
-- 任務與進度：`specs/001-asset-aggregation/tasks.md`
-- 實作計畫：`specs/001-asset-aggregation/plan.md`
-- 設計研究：`specs/001-asset-aggregation/research.md`
-- 資料模型：`specs/001-asset-aggregation/data-model.md`
+- 環境設定與驗證流程：`docs/quickstart.md`
+- 依賴掃描摘要：`docs/dependency-review.md`
+- 壓力測試報告：`docs/load-test-report.md`
+- API 規格：`docs/swagger/*.yaml`
