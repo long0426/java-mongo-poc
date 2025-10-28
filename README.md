@@ -35,8 +35,8 @@ specs/001-asset-aggregation/ # 規格、計畫與任務文件
 ## 測試
 - 單元與整合測試：`./gradlew :assets:test`
 - 指定測試類別：
-  - raw 寫入重試行為：`./gradlew :assets:test --tests "com.project.assets.service.MongoWriteFailureTest"`
-  - 成功率指標驗證：`./gradlew :assets:test --tests "com.project.assets.service.AssetSuccessRateMetricsTest"`
+  - raw 寫入重試行為：`./gradlew :assets:test --tests "com.poc.svc.assets.service.MongoWriteFailureTest"`
+  - 成功率指標驗證：`./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetSuccessRateMetricsTest"`
 - Testcontainers 會啟動 `mongo:8.0`，請確保 Docker 可用。
 
 ## 指標與監控
