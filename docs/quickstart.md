@@ -61,17 +61,17 @@
 ## Testing Workflow (TDD)
 
 1. 編寫並執行寫入邏輯單元測試（預期失敗）  
-   `./gradlew :assets:test --tests "com.project.assets.repository.BankAssetRepositoryTest"`
+   `./gradlew :assets:test --tests "com.poc.svc.assets.repository.BankAssetRepositoryTest"`
 
 2. 實作 repository/service 使測試通過，再開發 controller 測試。
 
 3. 在 assets 模組撰寫聚合流程測試（Testcontainers Mongo）。  
-   `./gradlew :assets:test --tests "com.project.assets.service.AssetAggregationServiceTest"`
+   `./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetAggregationServiceTest"`
 
 4. 覆蓋超時、缺漏來源與整合 API 行為。  
-   `./gradlew :assets:test --tests "com.project.assets.service.AssetAggregationTimeoutTest"`  
-   `./gradlew :assets:test --tests "com.project.assets.service.AssetSourceMissingDataTest"`  
-   `./gradlew :assets:test --tests "com.project.assets.api.AssetIntegrationControllerTest"`
+   `./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetAggregationTimeoutTest"`  
+   `./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetSourceMissingDataTest"`  
+   `./gradlew :assets:test --tests "com.poc.svc.assets.controller.AssetIntegrationControllerTest"`
 
 4. 透過 `./gradlew check` 執行整體測試與靜態檢查。
 

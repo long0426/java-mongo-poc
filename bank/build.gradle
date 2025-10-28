@@ -4,7 +4,7 @@ plugins {
     id 'java'
 }
 
-group = 'com.project.bank'
+group = 'com.poc.svc.bank'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
