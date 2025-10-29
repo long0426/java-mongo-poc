@@ -102,8 +102,26 @@ public class AssetAggregationService {
 
         AggregationComputation computation = computeAggregation(customerId, traceId, summary);
 
+        AssetStagingDocument stagingDocument = computation.stagingDocument();
+        Optional<AssetStagingDocument> existingStaging = assetStagingRepository.findByCustomerId(customerId);
+        if (existingStaging.isPresent()) {
+            AssetStagingDocument current = stagingDocument;
+            AssetStagingDocument previous = existingStaging.get();
+            stagingDocument = new AssetStagingDocument(
+                    previous.id(),
+                    current.customerId(),
+                    current.baseCurrency(),
+                    current.components(),
+                    current.totalAssetValue(),
+                    current.currencyBreakdown(),
+                    current.aggregationStatus(),
+                    current.aggregatedAt(),
+                    current.traceId()
+            );
+        }
+
         Timer.Sample stagingTimer = Timer.start(meterRegistry);
-        AssetStagingDocument stagingDocument = assetStagingRepository.save(computation.stagingDocument());
+        stagingDocument = assetStagingRepository.save(stagingDocument);
         stagingTimer.stop(meterRegistry.timer(MetricsConfig.ASSET_AGGREGATION_STAGING_WRITE_LATENCY));
 
         meterRegistry.counter(MetricsConfig.ASSET_AGGREGATION_SUCCESS).increment();
@@ -199,6 +217,7 @@ public class AssetAggregationService {
         String payloadRefId = status == AssetComponentStatus.SUCCESS ? outcome.payloadRefId() : null;
         String effectiveTraceId = outcome.rawTraceId() == null ? traceId : outcome.rawTraceId();
         Instant fetchedAt = outcome.fetchedAt() == null ? Instant.now() : outcome.fetchedAt();
+        List<Map<String, Object>> assetDetails = outcome.assetDetails();
 
         AggregatedAssetResponse.Component responseComponent = new AggregatedAssetResponse.Component(
                 outcome.source(),
@@ -208,6 +227,7 @@ public class AssetAggregationService {
                 exchangeRate,
                 effectiveTraceId,
                 fetchedAt,
+                assetDetails,
                 payloadRefId
         );
 
@@ -219,13 +239,14 @@ public class AssetAggregationService {
                 exchangeRate,
                 effectiveTraceId,
                 fetchedAt,
+                assetDetails,
                 payloadRefId
         );
 
         log.info("TraceId={} source={} status={} amountInBase={} payloadRefId={}",
                 traceId, outcome.source(), status, amountInBase, payloadRefId);
 
-        return new ComponentComputation(outcome.source(), status, originalAmount, sourceCurrency, amountInBase, responseComponent, documentComponent);
+        return new ComponentComputation(outcome.source(), status, originalAmount, sourceCurrency, amountInBase, assetDetails, responseComponent, documentComponent);
     }
 
     private void mergeCurrency(Map<String, BigDecimal> breakdown, String currency, BigDecimal amount) {
@@ -251,6 +272,7 @@ public class AssetAggregationService {
             BigDecimal originalAmount,
             String sourceCurrency,
             BigDecimal amountInBase,
+            List<Map<String, Object>> assetDetails,
             AggregatedAssetResponse.Component responseComponent,
             AssetStagingDocument.Component documentComponent
     ) {

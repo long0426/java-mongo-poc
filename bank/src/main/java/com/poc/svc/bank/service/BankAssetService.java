@@ -26,7 +26,13 @@ public interface BankAssetService {
             return new BankAssetResponse(customerId, bankAssets, totalBalance, currency, newTraceId);
         }
 
-        public record BankAssetItem(String accountId, BigDecimal balance, String currency) {
+        public record BankAssetItem(String accountId, String assetName, BigDecimal balance, String currency) {
+            public BankAssetItem {
+                Objects.requireNonNull(accountId, "accountId must not be null");
+                Objects.requireNonNull(assetName, "assetName must not be null");
+                Objects.requireNonNull(balance, "balance must not be null");
+                Objects.requireNonNull(currency, "currency must not be null");
+            }
         }
     }
 }

@@ -112,9 +112,19 @@ class AssetAggregationServiceTest {
             assetSourceClient.bankResult = new BankAssetResult(
                     "c-123",
                     Map.of(
-                            "accounts", List.of(
-                                    Map.of("accountId", "A-001", "balance", 250000, "currency", "TWD"),
-                                    Map.of("accountId", "A-002", "balance", 250000, "currency", "TWD")
+                            "bankAssets", List.of(
+                                    Map.of(
+                                            "accountId", "A-001",
+                                            "assetName", "日常支票戶",
+                                            "balance", BigDecimal.valueOf(250000),
+                                            "currency", "TWD"
+                                    ),
+                                    Map.of(
+                                            "accountId", "A-002",
+                                            "assetName", "旅遊備用金",
+                                            "balance", BigDecimal.valueOf(250000),
+                                            "currency", "TWD"
+                                    )
                             )
                     ),
                     BigDecimal.valueOf(500000),
@@ -127,9 +137,19 @@ class AssetAggregationServiceTest {
             assetSourceClient.securitiesResult = new SecuritiesAssetResult(
                     "c-123",
                     Map.of(
-                            "holdings", List.of(
-                                    Map.of("symbol", "STK-1", "marketValue", 15000, "currency", "USD"),
-                                    Map.of("symbol", "STK-2", "marketValue", 15000, "currency", "USD")
+                            "securitiesAssets", List.of(
+                                    Map.of(
+                                            "symbol", "STK-1",
+                                            "assetName", "精選 STK-1",
+                                            "marketValue", BigDecimal.valueOf(15000),
+                                            "currency", "USD"
+                                    ),
+                                    Map.of(
+                                            "symbol", "STK-2",
+                                            "assetName", "精選 STK-2",
+                                            "marketValue", BigDecimal.valueOf(15000),
+                                            "currency", "USD"
+                                    )
                             )
                     ),
                     BigDecimal.valueOf(30000),
@@ -142,8 +162,13 @@ class AssetAggregationServiceTest {
             assetSourceClient.insuranceResult = new InsuranceAssetResult(
                     "c-123",
                     Map.of(
-                            "policies", List.of(
-                                    Map.of("policyNumber", "P-001", "coverage", 450000, "currency", "TWD")
+                            "insuranceAssets", List.of(
+                                    Map.of(
+                                            "policyNumber", "P-001",
+                                            "assetName", "安穩未來 方案",
+                                            "coverage", BigDecimal.valueOf(450000),
+                                            "currency", "TWD"
+                                    )
                             )
                     ),
                     BigDecimal.valueOf(450000),
@@ -170,7 +195,10 @@ class AssetAggregationServiceTest {
                     .extracting(AggregatedAssetResponse.Component::source)
                     .containsExactlyInAnyOrder(AssetSourceType.BANK, AssetSourceType.SECURITIES, AssetSourceType.INSURANCE);
             assertThat(response.components())
-                    .allSatisfy(component -> assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS));
+                    .allSatisfy(component -> {
+                        assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS);
+                        assertThat(component.assetDetails()).isNotEmpty();
+                    });
 
             assertThat(response.components())
                     .filteredOn(component -> component.source() == AssetSourceType.SECURITIES)
@@ -194,7 +222,139 @@ class AssetAggregationServiceTest {
                     .allSatisfy(component -> {
                         assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS.name());
                         assertThat(component.payloadRefId()).isNotBlank();
+                        assertThat(component.assetDetails()).isNotEmpty();
                     });
+        }
+
+        @Test
+        @DisplayName("should overwrite existing staging document with latest aggregation results")
+        void aggregateAssets_updatesExistingStagingDocument() {
+            TraceContext.ensureTraceId("agg-initial");
+
+            assetSourceClient.bankResult = new BankAssetResult(
+                    "c-123",
+                    Map.of(
+                            "bankAssets", List.of(
+                                    Map.of(
+                                            "accountId", "A-010",
+                                            "assetName", "高收益儲蓄",
+                                            "balance", BigDecimal.valueOf(300000),
+                                            "currency", "TWD"
+                                    )
+                            )
+                    ),
+                    BigDecimal.valueOf(300000),
+                    "TWD",
+                    List.of(new BankAssetWriter.BankAssetWriteRequest.CurrencyAmount("TWD", BigDecimal.valueOf(300000))),
+                    Instant.parse("2025-10-20T03:00:00Z"),
+                    "bank-initial"
+            );
+            assetSourceClient.securitiesResult = new SecuritiesAssetResult(
+                    "c-123",
+                    Map.of(
+                            "securitiesAssets", List.of(
+                                    Map.of(
+                                            "symbol", "STK-9",
+                                            "assetName", "環球 STK-9",
+                                            "marketValue", BigDecimal.valueOf(20000),
+                                            "currency", "USD"
+                                    )
+                            )
+                    ),
+                    BigDecimal.valueOf(20000),
+                    "USD",
+                    1,
+                    Instant.parse("2025-10-20T03:00:05Z"),
+                    "sec-initial"
+            );
+            assetSourceClient.insuranceResult = new InsuranceAssetResult(
+                    "c-123",
+                    Map.of(
+                            "insuranceAssets", List.of(
+                                    Map.of(
+                                            "policyNumber", "P-INIT",
+                                            "assetName", "家庭守護 方案",
+                                            "coverage", BigDecimal.valueOf(200000),
+                                            "currency", "TWD"
+                                    )
+                            )
+                    ),
+                    BigDecimal.valueOf(200000),
+                    "TWD",
+                    1,
+                    Instant.parse("2025-10-20T03:00:10Z"),
+                    "ins-initial"
+            );
+
+            assetAggregationService.aggregateCustomerAssets("c-123");
+
+            AssetStagingDocument initial = assetStagingRepository.findByCustomerId("c-123").orElseThrow();
+            String originalId = initial.id();
+
+            TraceContext.ensureTraceId("agg-followup");
+
+            assetSourceClient.bankResult = new BankAssetResult(
+                    "c-123",
+                    Map.of(
+                            "bankAssets", List.of(
+                                    Map.of(
+                                            "accountId", "A-020",
+                                            "assetName", "日常支票戶",
+                                            "balance", BigDecimal.valueOf(150000),
+                                            "currency", "TWD"
+                                    )
+                            )
+                    ),
+                    BigDecimal.valueOf(150000),
+                    "TWD",
+                    List.of(new BankAssetWriter.BankAssetWriteRequest.CurrencyAmount("TWD", BigDecimal.valueOf(150000))),
+                    Instant.parse("2025-10-20T03:30:00Z"),
+                    "bank-followup"
+            );
+            assetSourceClient.securitiesResult = new SecuritiesAssetResult(
+                    "c-123",
+                    Map.of(
+                            "securitiesAssets", List.of(
+                                    Map.of(
+                                            "symbol", "BND-77",
+                                            "assetName", "均衡 BND-77",
+                                            "marketValue", BigDecimal.valueOf(5000),
+                                            "currency", "USD"
+                                    )
+                            )
+                    ),
+                    BigDecimal.valueOf(5000),
+                    "USD",
+                    1,
+                    Instant.parse("2025-10-20T03:30:05Z"),
+                    "sec-followup"
+            );
+            assetSourceClient.insuranceResult = new InsuranceAssetResult(
+                    "c-123",
+                    Map.of(
+                            "insuranceAssets", List.of(
+                                    Map.of(
+                                            "policyNumber", "P-FOLLOW",
+                                            "assetName", "旅遊安心 方案",
+                                            "coverage", BigDecimal.valueOf(100000),
+                                            "currency", "TWD"
+                                    )
+                            )
+                    ),
+                    BigDecimal.valueOf(100000),
+                    "TWD",
+                    1,
+                    Instant.parse("2025-10-20T03:30:10Z"),
+                    "ins-followup"
+            );
+
+            assetAggregationService.aggregateCustomerAssets("c-123");
+
+            assertThat(assetStagingRepository.count()).isEqualTo(1);
+            AssetStagingDocument updated = assetStagingRepository.findByCustomerId("c-123").orElseThrow();
+            assertThat(updated.id()).isEqualTo(originalId);
+            assertThat(updated.totalAssetValue()).isNotEqualTo(initial.totalAssetValue());
+            assertThat(updated.aggregatedAt()).isAfter(initial.aggregatedAt());
         }
     }
 

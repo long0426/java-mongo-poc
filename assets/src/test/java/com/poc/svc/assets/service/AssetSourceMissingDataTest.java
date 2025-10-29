@@ -102,7 +102,12 @@ class AssetSourceMissingDataTest {
 
         assetSourceClient.bankResult = new BankAssetResult(
                 "c-missing",
-                Map.of("accounts", List.of(Map.of("accountId", "A-1", "balance", 400000, "currency", "TWD"))),
+                Map.of("bankAssets", List.of(Map.of(
+                        "accountId", "A-1",
+                        "assetName", "日常支票戶",
+                        "balance", BigDecimal.valueOf(400000),
+                        "currency", "TWD"
+                ))),
                 BigDecimal.valueOf(400000),
                 "TWD",
                 List.of(new BankAssetWriter.BankAssetWriteRequest.CurrencyAmount("TWD", BigDecimal.valueOf(400000))),
@@ -112,7 +117,12 @@ class AssetSourceMissingDataTest {
 
         assetSourceClient.insuranceResult = new InsuranceAssetResult(
                 "c-missing",
-                Map.of("policies", List.of(Map.of("policyNumber", "P-1", "coverage", 150000, "currency", "TWD"))),
+                Map.of("insuranceAssets", List.of(Map.of(
+                        "policyNumber", "P-1",
+                        "assetName", "安穩未來 方案",
+                        "coverage", BigDecimal.valueOf(150000),
+                        "currency", "TWD"
+                ))),
                 BigDecimal.valueOf(150000),
                 "TWD",
                 1,
@@ -136,6 +146,7 @@ class AssetSourceMissingDataTest {
 
         assertThat(missingComponent.amountInBase()).isEqualByComparingTo(BigDecimal.ZERO.setScale(2));
         assertThat(missingComponent.payloadRefId()).isNull();
+        assertThat(missingComponent.assetDetails()).isEmpty();
 
         assertThat(response.currencyBreakdown()).containsExactly(
                 new AggregatedAssetResponse.CurrencyAmount("TWD", BigDecimal.valueOf(550000).setScale(2, RoundingMode.HALF_UP))
@@ -150,6 +161,9 @@ class AssetSourceMissingDataTest {
         assertThat(staging.components())
                 .extracting(AssetStagingDocument.Component::status)
                 .containsExactlyInAnyOrder(AssetComponentStatus.SUCCESS.name(), AssetComponentStatus.MISSING.name(), AssetComponentStatus.SUCCESS.name());
+        assertThat(staging.components())
+                .filteredOn(component -> component.status().equals(AssetComponentStatus.SUCCESS.name()))
+                .allSatisfy(component -> assertThat(component.assetDetails()).isNotEmpty());
     }
 
     private static class MissingSourceClient implements AssetSourceClient {

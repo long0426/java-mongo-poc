@@ -17,6 +17,14 @@ import java.util.stream.IntStream;
 class BankAssetServiceImpl implements BankAssetService {
 
     private static final List<String> CURRENCIES = List.of("TWD", "USD", "JPY", "EUR");
+    private static final List<String> ACCOUNT_NAMES = List.of(
+            "日常支票戶",
+            "高收益儲蓄",
+            "旅遊備用金",
+            "教育基金",
+            "雨天備用金",
+            "彈性投資"
+    );
 
     private final MeterRegistry meterRegistry;
 
@@ -51,11 +59,13 @@ class BankAssetServiceImpl implements BankAssetService {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int accountCount = random.nextInt(1, 4);
         return IntStream.range(0, accountCount)
-                .mapToObj(idx -> new BankAssetResponse.BankAssetItem(
-                        "ACC-" + (1000 + idx) + "-" + Instant.now().toEpochMilli(),
-                        randomBalance(),
-                        CURRENCIES.get(random.nextInt(CURRENCIES.size()))
-                ))
+                .mapToObj(idx -> {
+                    String accountId = "ACC-" + (1000 + idx) + "-" + Instant.now().toEpochMilli();
+                    BigDecimal balance = randomBalance();
+                    String currency = CURRENCIES.get(random.nextInt(CURRENCIES.size()));
+                    String assetName = ACCOUNT_NAMES.get(random.nextInt(ACCOUNT_NAMES.size())) + " " + (idx + 1);
+                    return new BankAssetResponse.BankAssetItem(accountId, assetName, balance, currency);
+                })
                 .toList();
     }
 

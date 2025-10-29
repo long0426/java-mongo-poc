@@ -3,6 +3,7 @@ package com.poc.svc.assets.dto;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public record AggregatedAssetResponse(
@@ -48,6 +49,7 @@ public record AggregatedAssetResponse(
             BigDecimal exchangeRate,
             String rawTraceId,
             Instant fetchedAt,
+            List<Map<String, Object>> assetDetails,
             String payloadRefId
     ) {
         public Component {
@@ -58,6 +60,7 @@ public record AggregatedAssetResponse(
             Objects.requireNonNull(exchangeRate, "exchangeRate must not be null");
             Objects.requireNonNull(rawTraceId, "rawTraceId must not be null");
             Objects.requireNonNull(fetchedAt, "fetchedAt must not be null");
+            Objects.requireNonNull(assetDetails, "assetDetails must not be null");
             if (payloadRefId != null && payloadRefId.isBlank()) {
                 payloadRefId = null;
             }

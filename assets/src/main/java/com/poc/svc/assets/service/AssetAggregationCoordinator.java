@@ -95,6 +95,7 @@ public class AssetAggregationCoordinator {
                         ));
                         meterRegistry.counter("asset.aggregation.raw.write", "source", AssetSourceType.BANK.name(), "status", "SUCCESS").increment();
                         log.info("TraceId={} source=BANK rawWriteId={} status=SUCCESS", traceId, document.id());
+                        List<Map<String, Object>> assetDetails = extractAssetDetails(result.payload(), "bankAssets");
                         return SourceOutcome.success(
                                 AssetSourceType.BANK,
                                 result.totalBalance(),
@@ -102,7 +103,8 @@ public class AssetAggregationCoordinator {
                                 result.fetchedAt(),
                                 rawTraceId,
                                 document.id(),
-                                result.currencySummary()
+                                result.currencySummary(),
+                                assetDetails
                         );
                     } catch (DataAccessException ex) {
                         return handleWriteFailure(
@@ -134,6 +136,7 @@ public class AssetAggregationCoordinator {
                         ));
                         meterRegistry.counter("asset.aggregation.raw.write", "source", AssetSourceType.SECURITIES.name(), "status", "SUCCESS").increment();
                         log.info("TraceId={} source=SECURITIES rawWriteId={} status=SUCCESS", traceId, document.id());
+                        List<Map<String, Object>> assetDetails = extractAssetDetails(result.payload(), "securitiesAssets");
                         return SourceOutcome.success(
                                 AssetSourceType.SECURITIES,
                                 result.totalMarketValue(),
@@ -141,7 +144,8 @@ public class AssetAggregationCoordinator {
                                 result.fetchedAt(),
                                 rawTraceId,
                                 document.id(),
-                                List.of()
+                                List.of(),
+                                assetDetails
                         );
                     } catch (DataAccessException ex) {
                         return handleWriteFailure(
@@ -173,6 +177,7 @@ public class AssetAggregationCoordinator {
                         ));
                         meterRegistry.counter("asset.aggregation.raw.write", "source", AssetSourceType.INSURANCE.name(), "status", "SUCCESS").increment();
                         log.info("TraceId={} source=INSURANCE rawWriteId={} status=SUCCESS", traceId, document.id());
+                        List<Map<String, Object>> assetDetails = extractAssetDetails(result.payload(), "insuranceAssets");
                         return SourceOutcome.success(
                                 AssetSourceType.INSURANCE,
                                 result.totalCoverage(),
@@ -180,7 +185,8 @@ public class AssetAggregationCoordinator {
                                 result.fetchedAt(),
                                 rawTraceId,
                                 document.id(),
-                                List.of()
+                                List.of(),
+                                assetDetails
                         );
                     } catch (DataAccessException ex) {
                         return handleWriteFailure(
@@ -230,6 +236,21 @@ public class AssetAggregationCoordinator {
         return current;
     }
 
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> extractAssetDetails(Map<String, Object> payload, String key) {
+        if (payload == null) {
+            return List.of();
+        }
+        Object raw = payload.get(key);
+        if (!(raw instanceof List<?> rawList)) {
+            return List.of();
+        }
+        return rawList.stream()
+                .filter(Map.class::isInstance)
+                .map(item -> Map.copyOf((Map<String, Object>) item))
+                .toList();
+    }
+
     public record ExecutionSummary(Map<AssetSourceType, SourceOutcome> outcomes) {
 
         public ExecutionSummary {
@@ -267,10 +288,14 @@ public class AssetAggregationCoordinator {
             String rawTraceId,
             String payloadRefId,
             List<BankAssetWriter.BankAssetWriteRequest.CurrencyAmount> currencySummary,
+            List<Map<String, Object>> assetDetails,
             Throwable error
     ) {
         public SourceOutcome {
             currencySummary = currencySummary == null ? List.of() : List.copyOf(currencySummary);
+            assetDetails = assetDetails == null ? List.of() : assetDetails.stream()
+                    .map(Map::copyOf)
+                    .toList();
         }
 
         public static SourceOutcome success(
@@ -280,21 +305,22 @@ public class AssetAggregationCoordinator {
                 Instant fetchedAt,
                 String rawTraceId,
                 String payloadRefId,
-                List<BankAssetWriter.BankAssetWriteRequest.CurrencyAmount> currencySummary
+                List<BankAssetWriter.BankAssetWriteRequest.CurrencyAmount> currencySummary,
+                List<Map<String, Object>> assetDetails
         ) {
-            return new SourceOutcome(source, AssetComponentStatus.SUCCESS, amount, currency, fetchedAt, rawTraceId, payloadRefId, currencySummary, null);
+            return new SourceOutcome(source, AssetComponentStatus.SUCCESS, amount, currency, fetchedAt, rawTraceId, payloadRefId, currencySummary, assetDetails, null);
         }
 
         public static SourceOutcome missing(AssetSourceType source, String traceId) {
-            return new SourceOutcome(source, AssetComponentStatus.MISSING, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), null);
+            return new SourceOutcome(source, AssetComponentStatus.MISSING, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), List.of(), null);
         }
 
         public static SourceOutcome failed(AssetSourceType source, String traceId, Throwable error) {
-            return new SourceOutcome(source, AssetComponentStatus.FAILED, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), error);
+            return new SourceOutcome(source, AssetComponentStatus.FAILED, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), List.of(), error);
         }
 
         public static SourceOutcome timeout(AssetSourceType source, String traceId) {
-            return new SourceOutcome(source, AssetComponentStatus.TIMEOUT, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), new TimeoutException("Timed out"));
+            return new SourceOutcome(source, AssetComponentStatus.TIMEOUT, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), List.of(), new TimeoutException("Timed out"));
         }
 
         public boolean isFailure() {

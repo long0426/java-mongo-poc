@@ -37,8 +37,8 @@ class InsuranceAssetControllerTest {
         InsuranceAssetResponse response = new InsuranceAssetResponse(
                 "customer-321",
                 List.of(
-                        new InsuranceAssetResponse.InsuranceAssetItem("LIF-1000", "life", BigDecimal.valueOf(100000), "paid", "TWD", Instant.parse("2025-01-01T00:00:00Z")),
-                        new InsuranceAssetResponse.InsuranceAssetItem("HLT-1001", "health", BigDecimal.valueOf(50000), "due", "TWD", Instant.parse("2025-01-01T00:05:00Z"))
+                        new InsuranceAssetResponse.InsuranceAssetItem("LIF-1000", "life", "安穩未來 方案", BigDecimal.valueOf(100000), "paid", "TWD", Instant.parse("2025-01-01T00:00:00Z")),
+                        new InsuranceAssetResponse.InsuranceAssetItem("HLT-1001", "health", "頂級醫療 方案", BigDecimal.valueOf(50000), "due", "TWD", Instant.parse("2025-01-01T00:05:00Z"))
                 ),
                 BigDecimal.valueOf(150000),
                 "TWD",
@@ -63,7 +63,7 @@ class InsuranceAssetControllerTest {
     void getCustomerAssets_generatesTraceIdWhenMissingHeader() throws Exception {
         InsuranceAssetResponse response = new InsuranceAssetResponse(
                 "customer-654",
-                List.of(new InsuranceAssetResponse.InsuranceAssetItem("LIF-2000", "life", BigDecimal.valueOf(500000), "paid", "TWD", Instant.parse("2025-02-01T12:00:00Z"))),
+                List.of(new InsuranceAssetResponse.InsuranceAssetItem("LIF-2000", "life", "家庭守護 方案", BigDecimal.valueOf(500000), "paid", "TWD", Instant.parse("2025-02-01T12:00:00Z"))),
                 BigDecimal.valueOf(500000),
                 "TWD",
                 null
