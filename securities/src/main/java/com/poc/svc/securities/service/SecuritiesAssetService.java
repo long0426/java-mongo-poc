@@ -30,6 +30,14 @@ public class SecuritiesAssetService {
     private static final String ERROR_TIMEOUT = "ASSET_SOURCE_TIMEOUT";
     private static final int MAX_RETRY = 3;
     private static final Duration RETRY_DELAY = Duration.ofMillis(100);
+    private static final List<String> SECURITY_NAME_PREFIXES = List.of(
+            "Global",
+            "Prime",
+            "Balanced",
+            "Growth",
+            "Strategic",
+            "Momentum"
+    );
 
     private final MeterRegistry meterRegistry;
 
@@ -107,7 +115,8 @@ public class SecuritiesAssetService {
         int quantity = random.nextInt(10, 500);
         String currency = CURRENCIES.get(random.nextInt(CURRENCIES.size()));
         String riskLevel = RISK_LEVELS.get(random.nextInt(RISK_LEVELS.size()));
-        return new SecurityHolding(securityType, symbol, quantity, marketValue, currency, riskLevel, Instant.now());
+        String assetName = SECURITY_NAME_PREFIXES.get(random.nextInt(SECURITY_NAME_PREFIXES.size())) + " " + symbol;
+        return new SecurityHolding(securityType, symbol, assetName, quantity, marketValue, currency, riskLevel, Instant.now());
     }
 
     private void validateCustomerId(String customerId) {
@@ -159,6 +168,7 @@ public class SecuritiesAssetService {
         public record SecurityHolding(
                 String securityType,
                 String symbol,
+                String assetName,
                 Integer holdings,
                 BigDecimal marketValue,
                 String currency,
@@ -168,6 +178,7 @@ public class SecuritiesAssetService {
             public SecurityHolding {
                 Objects.requireNonNull(securityType, "securityType must not be null");
                 Objects.requireNonNull(symbol, "symbol must not be null");
+                Objects.requireNonNull(assetName, "assetName must not be null");
                 Objects.requireNonNull(holdings, "holdings must not be null");
                 Objects.requireNonNull(marketValue, "marketValue must not be null");
                 Objects.requireNonNull(currency, "currency must not be null");

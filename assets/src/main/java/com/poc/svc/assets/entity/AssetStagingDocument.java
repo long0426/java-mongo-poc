@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Document(collection = "asset_staging")
 public record AssetStagingDocument(
@@ -27,6 +28,7 @@ public record AssetStagingDocument(
             BigDecimal exchangeRate,
             String rawTraceId,
             Instant fetchedAt,
+            List<Map<String, Object>> assetDetails,
             String payloadRefId
     ) {
     }

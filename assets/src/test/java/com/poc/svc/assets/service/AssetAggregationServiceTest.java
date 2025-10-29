@@ -112,9 +112,19 @@ class AssetAggregationServiceTest {
             assetSourceClient.bankResult = new BankAssetResult(
                     "c-123",
                     Map.of(
-                            "accounts", List.of(
-                                    Map.of("accountId", "A-001", "balance", 250000, "currency", "TWD"),
-                                    Map.of("accountId", "A-002", "balance", 250000, "currency", "TWD")
+                            "bankAssets", List.of(
+                                    Map.of(
+                                            "accountId", "A-001",
+                                            "assetName", "Primary Checking",
+                                            "balance", BigDecimal.valueOf(250000),
+                                            "currency", "TWD"
+                                    ),
+                                    Map.of(
+                                            "accountId", "A-002",
+                                            "assetName", "Travel Savings",
+                                            "balance", BigDecimal.valueOf(250000),
+                                            "currency", "TWD"
+                                    )
                             )
                     ),
                     BigDecimal.valueOf(500000),
@@ -127,9 +137,19 @@ class AssetAggregationServiceTest {
             assetSourceClient.securitiesResult = new SecuritiesAssetResult(
                     "c-123",
                     Map.of(
-                            "holdings", List.of(
-                                    Map.of("symbol", "STK-1", "marketValue", 15000, "currency", "USD"),
-                                    Map.of("symbol", "STK-2", "marketValue", 15000, "currency", "USD")
+                            "securitiesAssets", List.of(
+                                    Map.of(
+                                            "symbol", "STK-1",
+                                            "assetName", "Prime STK-1",
+                                            "marketValue", BigDecimal.valueOf(15000),
+                                            "currency", "USD"
+                                    ),
+                                    Map.of(
+                                            "symbol", "STK-2",
+                                            "assetName", "Prime STK-2",
+                                            "marketValue", BigDecimal.valueOf(15000),
+                                            "currency", "USD"
+                                    )
                             )
                     ),
                     BigDecimal.valueOf(30000),
@@ -142,8 +162,13 @@ class AssetAggregationServiceTest {
             assetSourceClient.insuranceResult = new InsuranceAssetResult(
                     "c-123",
                     Map.of(
-                            "policies", List.of(
-                                    Map.of("policyNumber", "P-001", "coverage", 450000, "currency", "TWD")
+                            "insuranceAssets", List.of(
+                                    Map.of(
+                                            "policyNumber", "P-001",
+                                            "assetName", "Secure Future Plan",
+                                            "coverage", BigDecimal.valueOf(450000),
+                                            "currency", "TWD"
+                                    )
                             )
                     ),
                     BigDecimal.valueOf(450000),
@@ -170,7 +195,10 @@ class AssetAggregationServiceTest {
                     .extracting(AggregatedAssetResponse.Component::source)
                     .containsExactlyInAnyOrder(AssetSourceType.BANK, AssetSourceType.SECURITIES, AssetSourceType.INSURANCE);
             assertThat(response.components())
-                    .allSatisfy(component -> assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS));
+                    .allSatisfy(component -> {
+                        assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS);
+                        assertThat(component.assetDetails()).isNotEmpty();
+                    });
 
             assertThat(response.components())
                     .filteredOn(component -> component.source() == AssetSourceType.SECURITIES)
@@ -194,6 +222,7 @@ class AssetAggregationServiceTest {
                     .allSatisfy(component -> {
                         assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS.name());
                         assertThat(component.payloadRefId()).isNotBlank();
+                        assertThat(component.assetDetails()).isNotEmpty();
                     });
         }
     }

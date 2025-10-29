@@ -199,6 +199,7 @@ public class AssetAggregationService {
         String payloadRefId = status == AssetComponentStatus.SUCCESS ? outcome.payloadRefId() : null;
         String effectiveTraceId = outcome.rawTraceId() == null ? traceId : outcome.rawTraceId();
         Instant fetchedAt = outcome.fetchedAt() == null ? Instant.now() : outcome.fetchedAt();
+        List<Map<String, Object>> assetDetails = outcome.assetDetails();
 
         AggregatedAssetResponse.Component responseComponent = new AggregatedAssetResponse.Component(
                 outcome.source(),
@@ -208,6 +209,7 @@ public class AssetAggregationService {
                 exchangeRate,
                 effectiveTraceId,
                 fetchedAt,
+                assetDetails,
                 payloadRefId
         );
 
@@ -219,13 +221,14 @@ public class AssetAggregationService {
                 exchangeRate,
                 effectiveTraceId,
                 fetchedAt,
+                assetDetails,
                 payloadRefId
         );
 
         log.info("TraceId={} source={} status={} amountInBase={} payloadRefId={}",
                 traceId, outcome.source(), status, amountInBase, payloadRefId);
 
-        return new ComponentComputation(outcome.source(), status, originalAmount, sourceCurrency, amountInBase, responseComponent, documentComponent);
+        return new ComponentComputation(outcome.source(), status, originalAmount, sourceCurrency, amountInBase, assetDetails, responseComponent, documentComponent);
     }
 
     private void mergeCurrency(Map<String, BigDecimal> breakdown, String currency, BigDecimal amount) {
@@ -251,6 +254,7 @@ public class AssetAggregationService {
             BigDecimal originalAmount,
             String sourceCurrency,
             BigDecimal amountInBase,
+            List<Map<String, Object>> assetDetails,
             AggregatedAssetResponse.Component responseComponent,
             AssetStagingDocument.Component documentComponent
     ) {

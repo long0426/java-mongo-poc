@@ -188,6 +188,7 @@ public class HttpAssetSourceClient implements AssetSourceClient {
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record BankAssetItem(
             String accountId,
+            String assetName,
             BigDecimal balance,
             String currency
     ) {
@@ -207,6 +208,7 @@ public class HttpAssetSourceClient implements AssetSourceClient {
     private record SecuritiesHolding(
             String securityType,
             String symbol,
+            String assetName,
             Integer holdings,
             BigDecimal marketValue,
             String currency,
@@ -229,6 +231,7 @@ public class HttpAssetSourceClient implements AssetSourceClient {
     private record InsuranceAssetItem(
             String policyNumber,
             String policyType,
+            String assetName,
             BigDecimal coverage,
             String premiumStatus,
             String currency,
