@@ -30,12 +30,12 @@ public class InsuranceAssetService {
     private static final int MAX_RETRY = 3;
     private static final Duration RETRY_DELAY = Duration.ofMillis(100);
     private static final List<String> POLICY_NAME_PREFIXES = List.of(
-            "Secure Future",
-            "Family Shield",
-            "Life Care",
-            "Prime Health",
-            "Travel Guard",
-            "Home Protect"
+            "安穩未來",
+            "家庭守護",
+            "生命照護",
+            "頂級醫療",
+            "旅遊安心",
+            "家居保障"
     );
 
     private final MeterRegistry meterRegistry;
@@ -107,7 +107,7 @@ public class InsuranceAssetService {
         BigDecimal coverage = BigDecimal.valueOf(random.nextDouble(100_000, 2_000_000))
                 .setScale(2, RoundingMode.HALF_UP);
         String premiumStatus = PREMIUM_STATUSES.get(random.nextInt(PREMIUM_STATUSES.size()));
-        String assetName = POLICY_NAME_PREFIXES.get(random.nextInt(POLICY_NAME_PREFIXES.size())) + " Plan";
+        String assetName = POLICY_NAME_PREFIXES.get(random.nextInt(POLICY_NAME_PREFIXES.size())) + " 方案";
         return new InsuranceAssetItem(policyNumber, policyType, assetName, coverage, premiumStatus, "TWD", Instant.now());
     }
 

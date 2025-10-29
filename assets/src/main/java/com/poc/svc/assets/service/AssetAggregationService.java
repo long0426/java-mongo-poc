@@ -102,8 +102,26 @@ public class AssetAggregationService {
 
         AggregationComputation computation = computeAggregation(customerId, traceId, summary);
 
+        AssetStagingDocument stagingDocument = computation.stagingDocument();
+        Optional<AssetStagingDocument> existingStaging = assetStagingRepository.findByCustomerId(customerId);
+        if (existingStaging.isPresent()) {
+            AssetStagingDocument current = stagingDocument;
+            AssetStagingDocument previous = existingStaging.get();
+            stagingDocument = new AssetStagingDocument(
+                    previous.id(),
+                    current.customerId(),
+                    current.baseCurrency(),
+                    current.components(),
+                    current.totalAssetValue(),
+                    current.currencyBreakdown(),
+                    current.aggregationStatus(),
+                    current.aggregatedAt(),
+                    current.traceId()
+            );
+        }
+
         Timer.Sample stagingTimer = Timer.start(meterRegistry);
-        AssetStagingDocument stagingDocument = assetStagingRepository.save(computation.stagingDocument());
+        stagingDocument = assetStagingRepository.save(stagingDocument);
         stagingTimer.stop(meterRegistry.timer(MetricsConfig.ASSET_AGGREGATION_STAGING_WRITE_LATENCY));
 
         meterRegistry.counter(MetricsConfig.ASSET_AGGREGATION_SUCCESS).increment();

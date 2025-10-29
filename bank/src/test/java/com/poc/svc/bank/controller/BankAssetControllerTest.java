@@ -36,8 +36,8 @@ class BankAssetControllerTest {
         BankAssetResponse response = new BankAssetResponse(
                 "customer-123",
                 List.of(
-                        new BankAssetResponse.BankAssetItem("001", BigDecimal.valueOf(500), "TWD"),
-                        new BankAssetResponse.BankAssetItem("002", BigDecimal.valueOf(1500), "USD")
+                        new BankAssetResponse.BankAssetItem("001", "日常支票戶", BigDecimal.valueOf(500), "TWD"),
+                        new BankAssetResponse.BankAssetItem("002", "高收益儲蓄", BigDecimal.valueOf(1500), "USD")
                 ),
                 BigDecimal.valueOf(2000),
                 "TWD",
@@ -62,7 +62,7 @@ class BankAssetControllerTest {
     void getCustomerAssets_generatesTraceIdWhenMissingHeader() throws Exception {
         BankAssetResponse response = new BankAssetResponse(
                 "customer-789",
-                List.of(new BankAssetResponse.BankAssetItem("ACC-123", BigDecimal.valueOf(5000), "TWD")),
+                List.of(new BankAssetResponse.BankAssetItem("ACC-123", "旅遊備用金", BigDecimal.valueOf(5000), "TWD")),
                 BigDecimal.valueOf(5000),
                 "TWD",
                 null

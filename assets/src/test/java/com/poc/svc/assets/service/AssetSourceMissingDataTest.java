@@ -104,7 +104,7 @@ class AssetSourceMissingDataTest {
                 "c-missing",
                 Map.of("bankAssets", List.of(Map.of(
                         "accountId", "A-1",
-                        "assetName", "Primary Checking",
+                        "assetName", "日常支票戶",
                         "balance", BigDecimal.valueOf(400000),
                         "currency", "TWD"
                 ))),
@@ -119,7 +119,7 @@ class AssetSourceMissingDataTest {
                 "c-missing",
                 Map.of("insuranceAssets", List.of(Map.of(
                         "policyNumber", "P-1",
-                        "assetName", "Secure Future Plan",
+                        "assetName", "安穩未來 方案",
                         "coverage", BigDecimal.valueOf(150000),
                         "currency", "TWD"
                 ))),

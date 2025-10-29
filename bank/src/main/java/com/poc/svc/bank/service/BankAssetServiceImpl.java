@@ -18,12 +18,12 @@ class BankAssetServiceImpl implements BankAssetService {
 
     private static final List<String> CURRENCIES = List.of("TWD", "USD", "JPY", "EUR");
     private static final List<String> ACCOUNT_NAMES = List.of(
-            "Everyday Checking",
-            "High Yield Savings",
-            "Travel Reserve",
-            "Education Fund",
-            "Rainy Day Savings",
-            "Flexible Investment"
+            "日常支票戶",
+            "高收益儲蓄",
+            "旅遊備用金",
+            "教育基金",
+            "雨天備用金",
+            "彈性投資"
     );
 
     private final MeterRegistry meterRegistry;

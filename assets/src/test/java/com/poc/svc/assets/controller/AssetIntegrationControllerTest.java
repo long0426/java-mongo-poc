@@ -61,7 +61,7 @@ class AssetIntegrationControllerTest {
                                 BigDecimal.ONE,
                                 "bank-trace",
                                 Instant.parse("2025-10-20T02:34:56Z"),
-                                List.of(Map.of("assetName", "Bank Account")),
+                                List.of(Map.of("assetName", "銀行帳戶")),
                                 "doc-bank"
                         ),
                         new AggregatedAssetResponse.Component(
@@ -72,7 +72,7 @@ class AssetIntegrationControllerTest {
                                 BigDecimal.valueOf(32),
                                 "sec-trace",
                                 Instant.parse("2025-10-20T02:35:56Z"),
-                                List.of(Map.of("assetName", "Security Holding")),
+                                List.of(Map.of("assetName", "證券持倉")),
                                 "doc-sec"
                         ),
                         new AggregatedAssetResponse.Component(
@@ -83,7 +83,7 @@ class AssetIntegrationControllerTest {
                                 BigDecimal.ONE,
                                 "ins-trace",
                                 Instant.parse("2025-10-20T02:36:56Z"),
-                                List.of(Map.of("assetName", "Insurance Policy")),
+                                List.of(Map.of("assetName", "保險保單")),
                                 "doc-ins"
                         )
                 ),

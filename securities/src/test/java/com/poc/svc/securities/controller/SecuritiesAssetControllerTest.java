@@ -37,8 +37,8 @@ class SecuritiesAssetControllerTest {
         SecuritiesAssetResponse response = new SecuritiesAssetResponse(
                 "customer-456",
                 List.of(
-                        new SecuritiesAssetResponse.SecurityHolding("stock", "XYZ", 100, BigDecimal.valueOf(56000), "TWD", "MEDIUM", Instant.parse("2025-01-01T00:00:00Z")),
-                        new SecuritiesAssetResponse.SecurityHolding("bond", "US10Y", 50000, BigDecimal.valueOf(1500000), "USD", "LOW", Instant.parse("2025-01-01T00:05:00Z"))
+                        new SecuritiesAssetResponse.SecurityHolding("stock", "XYZ", "環球 XYZ", 100, BigDecimal.valueOf(56000), "TWD", "MEDIUM", Instant.parse("2025-01-01T00:00:00Z")),
+                        new SecuritiesAssetResponse.SecurityHolding("bond", "US10Y", "精選 US10Y", 50000, BigDecimal.valueOf(1500000), "USD", "LOW", Instant.parse("2025-01-01T00:05:00Z"))
                 ),
                 BigDecimal.valueOf(1556000),
                 "TWD",
@@ -63,7 +63,7 @@ class SecuritiesAssetControllerTest {
     void getCustomerAssets_generatesTraceIdWhenMissingHeader() throws Exception {
         SecuritiesAssetResponse response = new SecuritiesAssetResponse(
                 "customer-789",
-                List.of(new SecuritiesAssetResponse.SecurityHolding("fund", "FND-001", 20, BigDecimal.valueOf(120000), "TWD", "HIGH", Instant.parse("2025-01-02T12:00:00Z"))),
+                List.of(new SecuritiesAssetResponse.SecurityHolding("fund", "FND-001", "成長 FND-001", 20, BigDecimal.valueOf(120000), "TWD", "HIGH", Instant.parse("2025-01-02T12:00:00Z"))),
                 BigDecimal.valueOf(120000),
                 "TWD",
                 null

@@ -31,12 +31,12 @@ public class SecuritiesAssetService {
     private static final int MAX_RETRY = 3;
     private static final Duration RETRY_DELAY = Duration.ofMillis(100);
     private static final List<String> SECURITY_NAME_PREFIXES = List.of(
-            "Global",
-            "Prime",
-            "Balanced",
-            "Growth",
-            "Strategic",
-            "Momentum"
+            "環球",
+            "精選",
+            "均衡",
+            "成長",
+            "策略",
+            "動能"
     );
 
     private final MeterRegistry meterRegistry;
