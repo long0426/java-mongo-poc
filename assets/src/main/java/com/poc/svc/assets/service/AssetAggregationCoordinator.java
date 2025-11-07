@@ -103,6 +103,7 @@ public class AssetAggregationCoordinator {
                                 result.fetchedAt(),
                                 rawTraceId,
                                 document.id(),
+                                result.payload(),
                                 result.currencySummary(),
                                 assetDetails
                         );
@@ -144,6 +145,7 @@ public class AssetAggregationCoordinator {
                                 result.fetchedAt(),
                                 rawTraceId,
                                 document.id(),
+                                result.payload(),
                                 List.of(),
                                 assetDetails
                         );
@@ -185,6 +187,7 @@ public class AssetAggregationCoordinator {
                                 result.fetchedAt(),
                                 rawTraceId,
                                 document.id(),
+                                result.payload(),
                                 List.of(),
                                 assetDetails
                         );
@@ -293,6 +296,7 @@ public class AssetAggregationCoordinator {
             Throwable error
     ) {
         public SourceOutcome {
+            payload = payload == null ? Map.of() : Map.copyOf(payload);
             currencySummary = currencySummary == null ? List.of() : List.copyOf(currencySummary);
             assetDetails = assetDetails == null ? List.of() : assetDetails.stream()
                     .map(Map::copyOf)
@@ -306,22 +310,71 @@ public class AssetAggregationCoordinator {
                 Instant fetchedAt,
                 String rawTraceId,
                 String payloadRefId,
+                Map<String, Object> payload,
                 List<BankAssetWriter.BankAssetWriteRequest.CurrencyAmount> currencySummary,
                 List<Map<String, Object>> assetDetails
         ) {
-            return new SourceOutcome(source, AssetComponentStatus.SUCCESS, amount, currency, fetchedAt, rawTraceId, payloadRefId, currencySummary, assetDetails, null);
+            return new SourceOutcome(
+                    source,
+                    AssetComponentStatus.SUCCESS,
+                    amount,
+                    currency,
+                    fetchedAt,
+                    rawTraceId,
+                    payloadRefId,
+                    payload,
+                    currencySummary,
+                    assetDetails,
+                    null
+            );
         }
 
         public static SourceOutcome missing(AssetSourceType source, String traceId) {
-            return new SourceOutcome(source, AssetComponentStatus.MISSING, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), List.of(), null);
+            return new SourceOutcome(
+                    source,
+                    AssetComponentStatus.MISSING,
+                    BigDecimal.ZERO,
+                    null,
+                    Instant.now(),
+                    traceId,
+                    null,
+                    Map.of(),
+                    List.of(),
+                    List.of(),
+                    null
+            );
         }
 
         public static SourceOutcome failed(AssetSourceType source, String traceId, Throwable error) {
-            return new SourceOutcome(source, AssetComponentStatus.FAILED, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), List.of(), error);
+            return new SourceOutcome(
+                    source,
+                    AssetComponentStatus.FAILED,
+                    BigDecimal.ZERO,
+                    null,
+                    Instant.now(),
+                    traceId,
+                    null,
+                    Map.of(),
+                    List.of(),
+                    List.of(),
+                    error
+            );
         }
 
         public static SourceOutcome timeout(AssetSourceType source, String traceId) {
-            return new SourceOutcome(source, AssetComponentStatus.TIMEOUT, BigDecimal.ZERO, null, Instant.now(), traceId, null, List.of(), List.of(), new TimeoutException("Timed out"));
+            return new SourceOutcome(
+                    source,
+                    AssetComponentStatus.TIMEOUT,
+                    BigDecimal.ZERO,
+                    null,
+                    Instant.now(),
+                    traceId,
+                    null,
+                    Map.of(),
+                    List.of(),
+                    List.of(),
+                    new TimeoutException("Timed out")
+            );
         }
 
         public boolean isFailure() {

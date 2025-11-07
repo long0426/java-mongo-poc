@@ -3,6 +3,8 @@ package com.poc.svc.assets.service.impl;
 import com.poc.svc.assets.config.CurrencyConversionProperties;
 import com.poc.svc.assets.service.CurrencyConversionService;
 import com.poc.svc.assets.service.CurrencyConversionService.ConversionResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

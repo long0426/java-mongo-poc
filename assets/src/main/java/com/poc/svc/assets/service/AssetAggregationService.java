@@ -1,5 +1,7 @@
 package com.poc.svc.assets.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poc.svc.assets.config.MetricsConfig;
 import com.poc.svc.assets.util.TraceContext;
 import com.poc.svc.assets.dto.AggregatedAssetResponse;
@@ -119,6 +121,7 @@ public class AssetAggregationService {
                     current.customerId(),
                     current.baseCurrency(),
                     current.components(),
+                    current.assets(),
                     current.totalAssetValue(),
                     current.currencyBreakdown(),
                     current.aggregationStatus(),
@@ -279,7 +282,21 @@ public class AssetAggregationService {
         log.info("TraceId={} source={} status={} amountInBase={} payloadRefId={}",
                 traceId, outcome.source(), status, amountInBase, payloadRefId);
 
-        return new ComponentComputation(outcome.source(), status, originalAmount, sourceCurrency, amountInBase, assetDetails, responseComponent, documentComponent);
+        List<AssetEntryDraft> assetEntries = status == AssetComponentStatus.SUCCESS
+                ? resolveAssetEntries(traceId, outcome, payloadRefId, fetchedAt)
+                : List.of();
+
+        return new ComponentComputation(
+                outcome.source(),
+                status,
+                originalAmount,
+                sourceCurrency,
+                amountInBase,
+                assetDetails,
+                responseComponent,
+                documentComponent,
+                assetEntries
+        );
     }
 
     private void mergeCurrency(Map<String, BigDecimal> breakdown, String currency, BigDecimal amount) {
