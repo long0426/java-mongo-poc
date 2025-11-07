@@ -79,13 +79,14 @@ class AssetSuccessRateMetricsTest {
                 coordinator,
                 assetStagingRepository,
                 new PassthroughConversionService(),
+                new ObjectMapper(),
                 new AssetAggregationService.AggregationProperties("TWD", Duration.ofSeconds(2)),
                 meterRegistry
         );
 
         assetSourceClient.bankResult = new BankAssetResult(
                 "cust-metrics",
-                Map.of("accounts", List.of(Map.of("accountId", "B-1", "balance", 1200, "currency", "TWD"))),
+                Map.of("bankAssets", List.of(Map.of("accountId", "B-1", "balance", 1200, "currency", "TWD"))),
                 BigDecimal.valueOf(1200),
                 "TWD",
                 List.of(new BankAssetWriter.BankAssetWriteRequest.CurrencyAmount("TWD", BigDecimal.valueOf(1200))),
@@ -94,7 +95,7 @@ class AssetSuccessRateMetricsTest {
         );
         assetSourceClient.securitiesResult = new SecuritiesAssetResult(
                 "cust-metrics",
-                Map.of("holdings", List.of(Map.of("symbol", "ETF", "marketValue", 3000, "currency", "USD"))),
+                Map.of("securitiesAssets", List.of(Map.of("symbol", "ETF", "marketValue", 3000, "currency", "USD"))),
                 BigDecimal.valueOf(3000),
                 "USD",
                 1,
@@ -103,7 +104,7 @@ class AssetSuccessRateMetricsTest {
         );
         assetSourceClient.insuranceResult = new InsuranceAssetResult(
                 "cust-metrics",
-                Map.of("policies", List.of(Map.of("policyNumber", "POL-9", "coverage", 5000, "currency", "TWD"))),
+                Map.of("insuranceAssets", List.of(Map.of("policyNumber", "POL-9", "coverage", 5000, "currency", "TWD"))),
                 BigDecimal.valueOf(5000),
                 "TWD",
                 1,
@@ -121,7 +122,7 @@ class AssetSuccessRateMetricsTest {
         });
         when(assetStagingRepository.save(any(AssetStagingDocument.class))).thenAnswer(invocation -> {
             AssetStagingDocument doc = invocation.getArgument(0);
-            return new AssetStagingDocument("staging-id", doc.customerId(), doc.baseCurrency(), doc.components(), doc.totalAssetValue(), doc.currencyBreakdown(), doc.aggregationStatus(), doc.aggregatedAt(), doc.traceId());
+            return new AssetStagingDocument("staging-id", doc.customerId(), doc.baseCurrency(), doc.components(), doc.assets(), doc.totalAssetValue(), doc.currencyBreakdown(), doc.aggregationStatus(), doc.aggregatedAt(), doc.traceId());
         });
     }
 

@@ -40,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 @DataMongoTest
 @Testcontainers(disabledWithoutDocker = true)
@@ -96,6 +97,7 @@ class AssetAggregationServiceTest {
                 coordinator,
                 assetStagingRepository,
                 currencyConversionService,
+                new ObjectMapper(),
                 new AssetAggregationService.AggregationProperties("TWD", Duration.ofSeconds(3)),
                 meterRegistry
         );
@@ -223,6 +225,49 @@ class AssetAggregationServiceTest {
                         assertThat(component.status()).isEqualTo(AssetComponentStatus.SUCCESS.name());
                         assertThat(component.payloadRefId()).isNotBlank();
                         assertThat(component.assetDetails()).isNotEmpty();
+                    });
+
+            assertThat(staging.assets())
+                    .extracting(AssetStagingDocument.AssetEntry::source)
+                    .containsExactly("BANK", "BANK", "SECURITIES", "SECURITIES", "INSURANCE");
+
+            BigDecimal bankEntryAmount = BigDecimal.valueOf(250000).setScale(2, RoundingMode.HALF_UP);
+            assertThat(staging.assets())
+                    .filteredOn(entry -> entry.source().equals("BANK"))
+                    .extracting(
+                            AssetStagingDocument.AssetEntry::assetName,
+                            AssetStagingDocument.AssetEntry::balance,
+                            AssetStagingDocument.AssetEntry::amountInBase
+                    )
+                    .containsExactlyInAnyOrder(
+                            tuple("A-001", bankEntryAmount, bankEntryAmount),
+                            tuple("A-002", bankEntryAmount, bankEntryAmount)
+                    );
+
+            BigDecimal securitiesAmount = BigDecimal.valueOf(15000).multiply(BigDecimal.valueOf(32.00)).setScale(2, RoundingMode.HALF_UP);
+            assertThat(staging.assets())
+                    .filteredOn(entry -> entry.source().equals("SECURITIES"))
+                    .extracting(
+                            AssetStagingDocument.AssetEntry::assetName,
+                            AssetStagingDocument.AssetEntry::assetType,
+                            AssetStagingDocument.AssetEntry::symbol,
+                            AssetStagingDocument.AssetEntry::amountInBase,
+                            AssetStagingDocument.AssetEntry::holdings,
+                            AssetStagingDocument.AssetEntry::riskLevel
+                    )
+                    .containsExactlyInAnyOrder(
+                            tuple("STK-1", "ETF", "STK-1", securitiesAmount, BigDecimal.valueOf(10).setScale(4, RoundingMode.HALF_UP), "MEDIUM"),
+                            tuple("STK-2", "STOCK", "STK-2", securitiesAmount, BigDecimal.valueOf(5).setScale(4, RoundingMode.HALF_UP), "HIGH")
+                    );
+
+            assertThat(staging.assets())
+                    .filteredOn(entry -> entry.source().equals("INSURANCE"))
+                    .singleElement()
+                    .satisfies(entry -> {
+                        assertThat(entry.policyNumber()).isEqualTo("P-001");
+                        assertThat(entry.policyType()).isEqualTo("life");
+                        assertThat(entry.premiumStatus()).isEqualTo("PAID");
+                        assertThat(entry.coverage()).isEqualByComparingTo(BigDecimal.valueOf(450000).setScale(2, RoundingMode.HALF_UP));
                     });
         }
 

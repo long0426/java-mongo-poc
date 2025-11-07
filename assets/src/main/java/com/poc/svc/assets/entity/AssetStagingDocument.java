@@ -14,6 +14,7 @@ public record AssetStagingDocument(
         String customerId,
         String baseCurrency,
         List<Component> components,
+        List<AssetEntry> assets,
         BigDecimal totalAssetValue,
         List<CurrencyAmount> currencyBreakdown,
         String aggregationStatus,
@@ -34,5 +35,35 @@ public record AssetStagingDocument(
     }
 
     public record CurrencyAmount(String currency, BigDecimal amount) {
+    }
+
+    public record AssetEntry(
+            String customerId,
+            String source,
+            String sourceStatus,
+            String assetName,
+            String assetType,
+            String currency,
+            String sourceCurrency,
+            BigDecimal exchangeRate,
+            String baseCurrency,
+            BigDecimal amountInBase,
+            BigDecimal balance,
+            BigDecimal marketValue,
+            BigDecimal coverage,
+            String policyNumber,
+            String policyType,
+            String premiumStatus,
+            String riskLevel,
+            String symbol,
+            BigDecimal holdings,
+            String accountId,
+            Instant fetchedAt,
+            Instant aggregatedAt,
+            String traceId,
+            String payloadRefId,
+            BigDecimal totalAssetValue,
+            String aggregationStatus
+    ) {
     }
 }

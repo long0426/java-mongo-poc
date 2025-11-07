@@ -90,6 +90,7 @@ class AssetSourceMissingDataTest {
                 new LocalStaticConversionService(Map.of(
                         "USD:TWD", BigDecimal.valueOf(32.0)
                 )),
+                new ObjectMapper(),
                 new AssetAggregationService.AggregationProperties("TWD", Duration.ofSeconds(2)),
                 meterRegistry
         );

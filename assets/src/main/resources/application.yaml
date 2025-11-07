@@ -6,7 +6,7 @@ spring:
     name: assets-service
   data:
     mongodb:
-      uri: ${ASSETS_MONGODB_URI:mongodb://mongo:mongo@localhost:27017/assetdb?authSource=admin}
+      uri: ${ASSETS_MONGODB_URI:mongodb://mongo:mongo@localhost:27017/?authSource=admin&replicaSet=rs0}
       database: ${ASSETS_MONGODB_DATABASE:assetdb}
 
 assets:
@@ -31,3 +31,6 @@ assets:
       "USD:TWD": 32.0
       "JPY:TWD": 0.23
       "EUR:TWD": 35.0
+      "TWD:USD": 0.03
+      "TWD:JPY": 4.35
+      "TWD:EUR": 0.03

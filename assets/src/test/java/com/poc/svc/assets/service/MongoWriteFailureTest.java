@@ -81,6 +81,7 @@ class MongoWriteFailureTest {
                 coordinator,
                 assetStagingRepository,
                 new PassthroughConversionService(),
+                new ObjectMapper(),
                 new AssetAggregationService.AggregationProperties("TWD", Duration.ofSeconds(2)),
                 meterRegistry
         );
@@ -97,7 +98,7 @@ class MongoWriteFailureTest {
         TraceContext.ensureTraceId("trace-write-failure");
         assetSourceClient.bankResult = new BankAssetResult(
                 "cust-1",
-                Map.of("accounts", List.of(Map.of("accountId", "A-1", "balance", 1000, "currency", "TWD"))),
+                Map.of("bankAssets", List.of(Map.of("accountId", "A-1", "balance", 1000, "currency", "TWD"))),
                 BigDecimal.valueOf(1000),
                 "TWD",
                 List.of(new BankAssetWriter.BankAssetWriteRequest.CurrencyAmount("TWD", BigDecimal.valueOf(1000))),
@@ -106,7 +107,7 @@ class MongoWriteFailureTest {
         );
         assetSourceClient.securitiesResult = new SecuritiesAssetResult(
                 "cust-1",
-                Map.of("holdings", List.of(Map.of("symbol", "XYZ", "marketValue", 5000, "currency", "USD"))),
+                Map.of("securitiesAssets", List.of(Map.of("symbol", "XYZ", "marketValue", 5000, "currency", "USD"))),
                 BigDecimal.valueOf(5000),
                 "USD",
                 1,
@@ -115,7 +116,7 @@ class MongoWriteFailureTest {
         );
         assetSourceClient.insuranceResult = new InsuranceAssetResult(
                 "cust-1",
-                Map.of("policies", List.of(Map.of("policyNumber", "POL-1", "coverage", 2000, "currency", "TWD"))),
+                Map.of("insuranceAssets", List.of(Map.of("policyNumber", "POL-1", "coverage", 2000, "currency", "TWD"))),
                 BigDecimal.valueOf(2000),
                 "TWD",
                 1,

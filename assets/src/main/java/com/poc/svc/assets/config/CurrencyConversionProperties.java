@@ -20,11 +20,35 @@ public class CurrencyConversionProperties {
     }
 
     public BigDecimal findRate(String fromCurrency, String toCurrency) {
-        String key = normalize(fromCurrency) + ":" + normalize(toCurrency);
-        return rates.get(key);
+        String normalizedFrom = normalize(fromCurrency);
+        String normalizedTo = normalize(toCurrency);
+        return rates.entrySet().stream()
+                .filter(entry -> keyMatches(entry.getKey(), normalizedFrom, normalizedTo))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
     private String normalize(String value) {
         return value == null ? "" : value.trim().toUpperCase();
+    }
+
+    private boolean keyMatches(String rawKey, String expectedFrom, String expectedTo) {
+        if (rawKey == null) {
+            return false;
+        }
+        String trimmed = rawKey.trim().toUpperCase();
+        String sanitized = trimmed.replaceAll("[^A-Z0-9]", "");
+        if (sanitized.equals(expectedFrom + expectedTo)) {
+            return true;
+        }
+        int delimiterIndex = trimmed.indexOf(':');
+        if (delimiterIndex < 0) {
+            return false;
+        }
+
+        String keyFrom = normalize(trimmed.substring(0, delimiterIndex));
+        String keyTo = normalize(trimmed.substring(delimiterIndex + 1));
+        return keyFrom.equals(expectedFrom) && keyTo.equals(expectedTo);
     }
 }

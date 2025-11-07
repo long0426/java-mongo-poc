@@ -287,6 +287,7 @@ public class AssetAggregationCoordinator {
             Instant fetchedAt,
             String rawTraceId,
             String payloadRefId,
+            Map<String, Object> payload,
             List<BankAssetWriter.BankAssetWriteRequest.CurrencyAmount> currencySummary,
             List<Map<String, Object>> assetDetails,
             Throwable error

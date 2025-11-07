@@ -88,6 +88,7 @@ class AssetAggregationTimeoutTest {
                 new LocalStaticConversionService(Map.of(
                         "USD:TWD", BigDecimal.valueOf(32.0)
                 )),
+                new ObjectMapper(),
                 new AssetAggregationService.AggregationProperties("TWD", Duration.ofMillis(200)),
                 meterRegistry
         );
@@ -100,7 +101,7 @@ class AssetAggregationTimeoutTest {
 
         assetSourceClient.bankResult = new BankAssetResult(
                 "c-timeout",
-                Map.of("accounts", List.of(Map.of("accountId", "A-1", "balance", 100, "currency", "TWD"))),
+                Map.of("bankAssets", List.of(Map.of("accountId", "A-1", "balance", 100, "currency", "TWD"))),
                 BigDecimal.valueOf(100),
                 "TWD",
                 List.of(new BankAssetWriter.BankAssetWriteRequest.CurrencyAmount("TWD", BigDecimal.valueOf(100))),
@@ -110,7 +111,7 @@ class AssetAggregationTimeoutTest {
 
         assetSourceClient.insuranceResult = new InsuranceAssetResult(
                 "c-timeout",
-                Map.of("policies", List.of(Map.of("policyNumber", "P-1", "coverage", 200, "currency", "TWD"))),
+                Map.of("insuranceAssets", List.of(Map.of("policyNumber", "P-1", "coverage", 200, "currency", "TWD"))),
                 BigDecimal.valueOf(200),
                 "TWD",
                 1,

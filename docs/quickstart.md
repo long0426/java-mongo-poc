@@ -57,6 +57,7 @@
    db.bank_raw.find({ customerId: "123" }).pretty()
    db.asset_staging.find({ customerId: "123" }).pretty()
    ```
+   - `asset_staging` 文件現包含 `assets` 陣列，每個元素對應單一來源資產項目，欄位涵蓋 `assetName`、`assetType`、`currency`、`sourceCurrency`、`exchangeRate`、`amountInBase`、`balance`、`marketValue`、`coverage`、`policyNumber`、`policyType`、`premiumStatus`、`riskLevel`、`symbol`、`holdings`、`accountId`、`fetchedAt`、`aggregatedAt`、`traceId`、`payloadRefId`、`totalAssetValue` 與 `aggregationStatus`，可直接對應 MS SQL `CustomerAssetUnified` 表格需求。
 
 ## Testing Workflow (TDD)
 
