@@ -131,7 +131,7 @@ public class AssetAggregationService {
         }
 
         Timer.Sample stagingTimer = Timer.start(meterRegistry);
-        stagingDocument = assetStagingRepository.save(stagingDocument);
+        // stagingDocument = assetStagingRepository.save(stagingDocument);  將資料處理工程交給Mongo Aggregation Pipeline
         stagingTimer.stop(meterRegistry.timer(MetricsConfig.ASSET_AGGREGATION_STAGING_WRITE_LATENCY));
 
         meterRegistry.counter(MetricsConfig.ASSET_AGGREGATION_SUCCESS).increment();
