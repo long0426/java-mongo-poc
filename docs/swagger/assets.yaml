@@ -14,50 +14,15 @@ paths:
             type: string
       responses:
         '200':
-          description: Aggregated asset response
+          description: Aggregated documents returned directly from Mongo pipeline
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AggregatedAssetResponse'
-              examples:
-                sample:
-                  value:
-                    customerId: "123"
-                    baseCurrency: TWD
-                    totalAssetValue: 2000000
-                    currencyBreakdown:
-                      - currency: TWD
-                        amount: 500000
-                      - currency: USD
-                        amount: 45000
-                    components:
-                      - source: BANK
-                        status: SUCCESS
-                        amountInBase: 350000
-                        sourceCurrency: TWD
-                        exchangeRate: 1.0
-                        rawTraceId: "bank-trace"
-                        fetchedAt: "2025-10-20T02:34:56Z"
-                        payloadRefId: "665b1f1e8f1d2c7a9b1a0001"
-                      - source: SECURITIES
-                        status: SUCCESS
-                        amountInBase: 1200000
-                        sourceCurrency: USD
-                        exchangeRate: 32.0
-                        rawTraceId: "sec-trace"
-                        fetchedAt: "2025-10-20T02:35:01Z"
-                        payloadRefId: "665b1f1e8f1d2c7a9b1a0002"
-                      - source: INSURANCE
-                        status: SUCCESS
-                        amountInBase: 450000
-                        sourceCurrency: TWD
-                        exchangeRate: 1.0
-                        rawTraceId: "ins-trace"
-                        fetchedAt: "2025-10-20T02:35:05Z"
-                        payloadRefId: "665b1f1e8f1d2c7a9b1a0003"
-                    aggregationStatus: COMPLETED
-                    aggregatedAt: "2025-10-20T02:35:06Z"
-                    traceId: "agg-trace"
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetStagingDocument'
+              example:
+                - *AssetStagingDocumentExample
         '404':
           description: Customer not found in staging
           content:
@@ -88,67 +53,373 @@ paths:
                     traceId: "agg-timeout-trace"
 components:
   schemas:
-    AggregatedAssetResponse:
+    AssetStagingDocument:
+      &AssetStagingDocumentSchema
       type: object
-      required: [customerId, baseCurrency, totalAssetValue, currencyBreakdown, components, aggregationStatus, aggregatedAt, traceId]
       properties:
-        customerId:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        traceId:
           type: string
+        _class:
+          type: string
+        aggregatedAt:
+          $ref: '#/components/schemas/ISODate'
+        aggregationStatus:
+          type: string
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetStagingAsset'
         baseCurrency:
+          type: string
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetAggregationComponent'
+        customerId:
           type: string
         totalAssetValue:
           type: number
           format: double
-        currencyBreakdown:
-          type: array
-          items:
-            type: object
-            required: [currency, amount]
-            properties:
-              currency:
-                type: string
-              amount:
-                type: number
-                format: double
-        components:
-          type: array
-          items:
-            $ref: '#/components/schemas/AggregatedComponent'
-        aggregationStatus:
-          type: string
-          enum: [COMPLETED, PARTIAL, FAILED]
+      example: &AssetStagingDocumentExample
+        _id:
+          $oid: "6916821d13e65e95974ea5e0"
+        traceId: "00614374-480e-4507-9f94-0756966b1253"
+        _class: "com.poc.svc.assets.entity.AssetStagingDocument"
         aggregatedAt:
-          type: string
-          format: date-time
-        traceId:
-          type: string
-    AggregatedComponent:
+          $date: "2025-11-14T01:13:00.971Z"
+        aggregationStatus: "COMPLETED"
+        assets:
+          - customerId: "J12****789"
+            source: "BANK"
+            sourceStatus: "SUCCESS"
+            assetName: "ACC-1000-************"
+            assetType: "account"
+            currency: "EUR"
+            sourceCurrency: "EUR"
+            exchangeRate: 35
+            baseCurrency: "TWD"
+            amountInBase: "10510647.7"
+            balance: "300304.22"
+            accountId: "ACC-1000-************"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c5"
+            totalAssetValue: "638854.87"
+            aggregationStatus: "COMPLETED"
+          - customerId: "J12****789"
+            source: "BANK"
+            sourceStatus: "SUCCESS"
+            assetName: "ACC-1001-************"
+            assetType: "account"
+            currency: "USD"
+            sourceCurrency: "USD"
+            exchangeRate: 32
+            baseCurrency: "TWD"
+            amountInBase: "10833620.8"
+            balance: "338550.65"
+            accountId: "ACC-1001-************"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c5"
+            totalAssetValue: "638854.87"
+            aggregationStatus: "COMPLETED"
+          - customerId: "J12****789"
+            source: "SECURITIES"
+            sourceStatus: "SUCCESS"
+            assetName: "BND-10"
+            assetType: "bond"
+            currency: "USD"
+            sourceCurrency: "USD"
+            exchangeRate: 32
+            baseCurrency: "TWD"
+            amountInBase: "9976492.48"
+            marketValue: "311765.39"
+            riskLevel: "MEDIUM"
+            symbol: "BND-10"
+            holdings: "251"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c4"
+            totalAssetValue: "631187.49"
+            aggregationStatus: "COMPLETED"
+          - customerId: "J12****789"
+            source: "SECURITIES"
+            sourceStatus: "SUCCESS"
+            assetName: "RET-201"
+            assetType: "reit"
+            currency: "TWD"
+            sourceCurrency: "TWD"
+            exchangeRate: 1
+            baseCurrency: "TWD"
+            amountInBase: "214261.24"
+            marketValue: "214261.24"
+            riskLevel: "LOW"
+            symbol: "RET-201"
+            holdings: "292"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c4"
+            totalAssetValue: "631187.49"
+            aggregationStatus: "COMPLETED"
+          - customerId: "J12****789"
+            source: "SECURITIES"
+            sourceStatus: "SUCCESS"
+            assetName: "FND-1002"
+            assetType: "fund"
+            currency: "EUR"
+            sourceCurrency: "EUR"
+            exchangeRate: 35
+            baseCurrency: "TWD"
+            amountInBase: "3680630.1"
+            marketValue: "105160.86"
+            riskLevel: "MEDIUM"
+            symbol: "FND-1002"
+            holdings: "290"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c4"
+            totalAssetValue: "631187.49"
+            aggregationStatus: "COMPLETED"
+          - customerId: "J12****789"
+            source: "INSURANCE"
+            sourceStatus: "SUCCESS"
+            assetName: "PRO-1000"
+            assetType: "property"
+            currency: "TWD"
+            sourceCurrency: "TWD"
+            exchangeRate: 1
+            baseCurrency: "TWD"
+            amountInBase: "263817.03"
+            coverage: "263817.03"
+            policyNumber: "PRO-1000"
+            policyType: "property"
+            premiumStatus: "paid"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c6"
+            totalAssetValue: "520858.78"
+            aggregationStatus: "COMPLETED"
+          - customerId: "J12****789"
+            source: "INSURANCE"
+            sourceStatus: "SUCCESS"
+            assetName: "PRO-1001"
+            assetType: "property"
+            currency: "TWD"
+            sourceCurrency: "TWD"
+            exchangeRate: 1
+            baseCurrency: "TWD"
+            amountInBase: "257041.75"
+            coverage: "257041.75"
+            policyNumber: "PRO-1001"
+            policyType: "property"
+            premiumStatus: "overdue"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            aggregatedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            traceId: "00614374-480e-4507-9f94-0756966b1253"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c6"
+            totalAssetValue: "520858.78"
+            aggregationStatus: "COMPLETED"
+        baseCurrency: "TWD"
+        components:
+          - source: "BANK"
+            status: "SUCCESS"
+            amountInBase: "638854.87"
+            sourceCurrency: "TWD"
+            exchangeRate: "1.0000"
+            rawTraceId: "00614374-480e-4507-9f94-0756966b1253"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            assetDetails:
+              - accountId: "ACC-1000-************"
+                assetName: "高收益儲蓄 1"
+                balance: "300304.22"
+                currency: "EUR"
+              - accountId: "ACC-1001-************"
+                assetName: "高收益儲蓄 2"
+                balance: "338550.65"
+                currency: "USD"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c5"
+          - source: "SECURITIES"
+            status: "SUCCESS"
+            amountInBase: "631187.49"
+            sourceCurrency: "TWD"
+            exchangeRate: "1.0000"
+            rawTraceId: "00614374-480e-4507-9f94-0756966b1253"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            assetDetails:
+              - securityType: "bond"
+                symbol: "BND-10"
+                assetName: "策略 BND-10"
+                holdings: 251
+                marketValue: "311765.39"
+                currency: "USD"
+                riskLevel: "MEDIUM"
+                lastUpdated: "2025-11-14T01:13:00.938198Z"
+              - securityType: "reit"
+                symbol: "RET-201"
+                assetName: "精選 RET-201"
+                holdings: 292
+                marketValue: "214261.24"
+                currency: "TWD"
+                riskLevel: "LOW"
+                lastUpdated: "2025-11-14T01:13:00.938708Z"
+              - securityType: "fund"
+                symbol: "FND-1002"
+                assetName: "均衡 FND-1002"
+                holdings: 290
+                marketValue: "105160.86"
+                currency: "EUR"
+                riskLevel: "MEDIUM"
+                lastUpdated: "2025-11-14T01:13:00.938723Z"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c4"
+          - source: "INSURANCE"
+            status: "SUCCESS"
+            amountInBase: "520858.78"
+            sourceCurrency: "TWD"
+            exchangeRate: "1.0000"
+            rawTraceId: "00614374-480e-4507-9f94-0756966b1253"
+            fetchedAt:
+              $date: "2025-11-14T01:13:00.971Z"
+            assetDetails:
+              - policyNumber: "PRO-1000"
+                policyType: "property"
+                assetName: "家庭守護 方案"
+                coverage: "263817.03"
+                premiumStatus: "paid"
+                currency: "TWD"
+                lastUpdated: "2025-11-14T01:13:00.937740Z"
+              - policyNumber: "PRO-1001"
+                policyType: "property"
+                assetName: "生命照護 方案"
+                coverage: "257041.75"
+                premiumStatus: "overdue"
+                currency: "TWD"
+                lastUpdated: "2025-11-14T01:13:00.937756Z"
+            payloadRefId:
+              $oid: "6916821c702a4581eb6169c6"
+        customerId: "J12****789"
+        totalAssetValue: 35736511.1
+    AssetStagingAsset:
       type: object
-      required: [source, status, amountInBase, sourceCurrency, exchangeRate, rawTraceId, fetchedAt]
       properties:
+        customerId:
+          type: string
         source:
           type: string
-          enum: [BANK, SECURITIES, INSURANCE]
-        status:
+        sourceStatus:
           type: string
-          enum: [SUCCESS, MISSING, FAILED, TIMEOUT]
-          description: Aggregation outcome for the source
-        amountInBase:
-          type: number
-          format: double
+        assetName:
+          type: string
+        assetType:
+          type: string
+        currency:
+          type: string
         sourceCurrency:
           type: string
         exchangeRate:
           type: number
-          format: double
+        baseCurrency:
+          type: string
+        amountInBase:
+          type: string
+        balance:
+          type: string
+        marketValue:
+          type: string
+        coverage:
+          type: string
+        riskLevel:
+          type: string
+        symbol:
+          type: string
+        holdings:
+          type: string
+        accountId:
+          type: string
+        policyNumber:
+          type: string
+        policyType:
+          type: string
+        premiumStatus:
+          type: string
+        fetchedAt:
+          $ref: '#/components/schemas/ISODate'
+        aggregatedAt:
+          $ref: '#/components/schemas/ISODate'
+        traceId:
+          type: string
+        payloadRefId:
+          $ref: '#/components/schemas/ObjectId'
+        totalAssetValue:
+          type: string
+        aggregationStatus:
+          type: string
+    AssetAggregationComponent:
+      type: object
+      properties:
+        source:
+          type: string
+        status:
+          type: string
+        amountInBase:
+          type: string
+        sourceCurrency:
+          type: string
+        exchangeRate:
+          type: string
         rawTraceId:
           type: string
         fetchedAt:
+          $ref: '#/components/schemas/ISODate'
+        assetDetails:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        payloadRefId:
+          $ref: '#/components/schemas/ObjectId'
+    ObjectId:
+      type: object
+      properties:
+        $oid:
+          type: string
+    ISODate:
+      type: object
+      properties:
+        $date:
           type: string
           format: date-time
-        payloadRefId:
-          type: string
-          nullable: true
-          description: 參照對應 raw document `_id`
     ErrorResponse:
       $ref: './bank.yaml#/components/schemas/ErrorResponse'

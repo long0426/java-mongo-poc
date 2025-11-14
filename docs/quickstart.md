@@ -41,9 +41,10 @@
    ```
 
 5. **呼叫整合資產 API**
-   ```bash
-   curl http://localhost:8080/assets/customers/123 | jq
-   ```
+ ```bash
+  curl http://localhost:8080/assets/customers/123 | jq
+  ```
+  - 回傳為 `asset_staging` 集合的 Mongo Document 陣列，可直接在 Swagger UI 的 Example 參考字段結構；若需篩選單一 trace，可利用 `traceId` 欄位。
 
 6. **檢視 Swagger UI**
    - Bank: `http://localhost:8081/swagger-ui.html`
@@ -61,20 +62,16 @@
 
 ## Testing Workflow (TDD)
 
-1. 編寫並執行寫入邏輯單元測試（預期失敗）  
-   `./gradlew :assets:test --tests "com.poc.svc.assets.repository.BankAssetRepositoryTest"`
-
-2. 實作 repository/service 使測試通過，再開發 controller 測試。
-
-3. 在 assets 模組撰寫聚合流程測試（Testcontainers Mongo）。  
+1. 先以 Mockito 驗證協調流程會依 pipeline 名稱與 trace ID 觸發 Mongo 聚合，並正確處理失敗：  
    `./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetAggregationServiceTest"`
 
-4. 覆蓋超時、缺漏來源與整合 API 行為。  
-   `./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetAggregationTimeoutTest"`  
-   `./gradlew :assets:test --tests "com.poc.svc.assets.service.AssetSourceMissingDataTest"`  
+2. 透過 Testcontainers Mongo 驗證 `AggregationExecutor` 能讀取 `pipeline_store`、執行 `$merge` 並回讀指定 traceId 的 `asset_staging` 文件：  
+   `./gradlew :assets:test --tests "com.poc.svc.assets.service.AggregationExecutorIntegrationTest"`
+
+3. `AssetIntegrationControllerTest` 可確保 HTTP 行為（含錯誤映射與 Trace header）維持穩定：  
    `./gradlew :assets:test --tests "com.poc.svc.assets.controller.AssetIntegrationControllerTest"`
 
-4. 透過 `./gradlew check` 執行整體測試與靜態檢查。
+4. 最後以 `./gradlew :assets:test` 或 `./gradlew check` 整合執行全部測試與靜態檢查。
 
 ## Monitoring & Metrics
 

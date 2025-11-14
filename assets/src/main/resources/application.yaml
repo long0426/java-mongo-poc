@@ -21,6 +21,7 @@ assets:
   aggregation:
     base-currency: ${ASSETS_BASE_CURRENCY:TWD}
     timeout: ${ASSETS_AGGREGATION_TIMEOUT:3s}
+    pipeline-name: ${ASSETS_AGGREGATION_PIPELINE:assets_aggregation}
   mongo:
     write-retry:
       max-attempts: ${ASSETS_MONGO_WRITE_MAX_ATTEMPTS:3}

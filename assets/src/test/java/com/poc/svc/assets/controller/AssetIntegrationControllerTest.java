@@ -1,11 +1,9 @@
 package com.poc.svc.assets.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.poc.svc.assets.dto.AggregatedAssetResponse;
-import com.poc.svc.assets.dto.AssetComponentStatus;
 import com.poc.svc.assets.dto.AssetSourceType;
 import com.poc.svc.assets.exception.AssetAggregationException;
 import com.poc.svc.assets.service.AssetAggregationService;
+import org.bson.Document;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,10 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -38,59 +33,16 @@ class AssetIntegrationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private AssetAggregationService assetAggregationService;
 
     @Test
     @DisplayName("should return aggregated response with trace header")
     void aggregateCustomerAssets_success() throws Exception {
-        AggregatedAssetResponse response = new AggregatedAssetResponse(
-                "c-001",
-                "TWD",
-                BigDecimal.valueOf(1000),
-                List.of(new AggregatedAssetResponse.CurrencyAmount("TWD", BigDecimal.valueOf(1000))),
-                List.of(
-                        new AggregatedAssetResponse.Component(
-                                AssetSourceType.BANK,
-                                AssetComponentStatus.SUCCESS,
-                                BigDecimal.valueOf(500),
-                                "TWD",
-                                BigDecimal.ONE,
-                                "bank-trace",
-                                Instant.parse("2025-10-20T02:34:56Z"),
-                                List.of(Map.of("assetName", "銀行帳戶")),
-                                "doc-bank"
-                        ),
-                        new AggregatedAssetResponse.Component(
-                                AssetSourceType.SECURITIES,
-                                AssetComponentStatus.SUCCESS,
-                                BigDecimal.valueOf(300),
-                                "USD",
-                                BigDecimal.valueOf(32),
-                                "sec-trace",
-                                Instant.parse("2025-10-20T02:35:56Z"),
-                                List.of(Map.of("assetName", "證券持倉")),
-                                "doc-sec"
-                        ),
-                        new AggregatedAssetResponse.Component(
-                                AssetSourceType.INSURANCE,
-                                AssetComponentStatus.SUCCESS,
-                                BigDecimal.valueOf(200),
-                                "TWD",
-                                BigDecimal.ONE,
-                                "ins-trace",
-                                Instant.parse("2025-10-20T02:36:56Z"),
-                                List.of(Map.of("assetName", "保險保單")),
-                                "doc-ins"
-                        )
-                ),
-                AggregatedAssetResponse.AggregationStatus.COMPLETED,
-                Instant.parse("2025-10-20T02:37:56Z"),
-                "agg-trace"
-        );
+        List<Document> response = List.of(new Document()
+                .append("customerId", "c-001")
+                .append("traceId", "agg-trace")
+                .append("components", List.of(new Document("source", "BANK"))));
 
         Mockito.when(assetAggregationService.aggregateCustomerAssets(eq("c-001"))).thenReturn(response);
 
@@ -99,9 +51,9 @@ class AssetIntegrationControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(header().string(TRACE_HEADER, equalTo("client-trace")))
-                .andExpect(jsonPath("$.customerId").value("c-001"))
-                .andExpect(jsonPath("$.components", hasSize(3)))
-                .andExpect(jsonPath("$.components[0].status").value("SUCCESS"));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].customerId").value("c-001"))
+                .andExpect(jsonPath("$[0].components", hasSize(1)));
     }
 
     @Test
