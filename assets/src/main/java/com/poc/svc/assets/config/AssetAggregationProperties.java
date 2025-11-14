@@ -15,6 +15,9 @@ public class AssetAggregationProperties {
 
     private Duration timeout = Duration.ofSeconds(3);
 
+    @NotBlank
+    private String pipelineName = "assets_aggregation";
+
     public String getBaseCurrency() {
         return baseCurrency;
     }
@@ -29,5 +32,13 @@ public class AssetAggregationProperties {
 
     public void setTimeout(Duration timeout) {
         this.timeout = timeout;
+    }
+
+    public String getPipelineName() {
+        return pipelineName;
+    }
+
+    public void setPipelineName(String pipelineName) {
+        this.pipelineName = pipelineName;
     }
 }

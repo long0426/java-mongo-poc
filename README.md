@@ -2,7 +2,7 @@
 
 ## 專案概述
 - Spring Boot 3 多模組（`bank`、`securities`、`insurance`、`assets`）模擬三個來源資產 API 與整合服務。
-- 整合服務會並行呼叫三個來源、寫入 MongoDB raw collection，最後以基準貨幣（TWD）聚合至 `asset_staging` 並回傳標準化回應。
+- 整合服務會並行呼叫三個來源、寫入 MongoDB raw collection，最後以基準貨幣（TWD）聚合至 `asset_staging`，並直接回傳新寫入的 `asset_staging` 文件（Mongo Document）。
 - 具備共用錯誤契約、追蹤 ID、Micrometer 指標與 Mongo 寫入重試機制。
 
 ## 目錄結構

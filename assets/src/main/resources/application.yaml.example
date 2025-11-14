@@ -21,6 +21,7 @@ assets:
   aggregation:
     base-currency: TWD
     timeout: 3s
+    pipeline-name: assets_aggregation
   mongo:
     write-retry:
       max-attempts: 3

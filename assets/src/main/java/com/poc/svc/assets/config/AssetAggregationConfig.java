@@ -17,7 +17,10 @@ public class AssetAggregationConfig {
 
     @Bean
     public AssetAggregationService.AggregationProperties aggregationProperties(AssetAggregationProperties properties) {
-        return new AssetAggregationService.AggregationProperties(properties.getBaseCurrency(), properties.getTimeout());
+        return new AssetAggregationService.AggregationProperties(
+                properties.getTimeout(),
+                properties.getPipelineName()
+        );
     }
 
     @Bean
