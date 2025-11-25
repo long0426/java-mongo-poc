@@ -4,6 +4,7 @@ import com.poc.svc.insurance.logging.TraceContext;
 import com.poc.svc.insurance.service.InsuranceAssetService.InsuranceAssetResponse.InsuranceAssetItem;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -139,11 +140,17 @@ public class InsuranceAssetService {
         }
     }
 
+    @Schema(name = "InsuranceAssetResponse", description = "保險資產查詢回應")
     public record InsuranceAssetResponse(
+            @Schema(description = "客戶識別碼", example = "cust-001", requiredMode = Schema.RequiredMode.REQUIRED)
             String customerId,
+            @Schema(description = "保戶持有的保單清單", requiredMode = Schema.RequiredMode.REQUIRED)
             List<InsuranceAssetItem> insuranceAssets,
+            @Schema(description = "保障總額", example = "2000000.00", requiredMode = Schema.RequiredMode.REQUIRED)
             BigDecimal totalCoverage,
+            @Schema(description = "幣別", example = "TWD", requiredMode = Schema.RequiredMode.REQUIRED)
             String currency,
+            @Schema(description = "Trace ID", example = "trace-1234", requiredMode = Schema.RequiredMode.REQUIRED)
             String traceId
     ) {
         public InsuranceAssetResponse {
@@ -157,14 +164,15 @@ public class InsuranceAssetService {
             return new InsuranceAssetResponse(customerId, insuranceAssets, totalCoverage, currency, traceId);
         }
 
+        @Schema(name = "InsuranceAssetItem", description = "單筆保險資產")
         public record InsuranceAssetItem(
-                String policyNumber,
-                String policyType,
-                String assetName,
-                BigDecimal coverage,
-                String premiumStatus,
-                String currency,
-                Instant lastUpdated
+                @Schema(description = "保單號碼", example = "LIF-1000") String policyNumber,
+                @Schema(description = "保單種類", example = "life") String policyType,
+                @Schema(description = "方案名稱", example = "家庭守護 方案") String assetName,
+                @Schema(description = "保障金額", example = "500000.00") BigDecimal coverage,
+                @Schema(description = "保費狀態", example = "paid") String premiumStatus,
+                @Schema(description = "幣別", example = "TWD") String currency,
+                @Schema(description = "最後更新時間", example = "2025-11-14T01:13:00Z") Instant lastUpdated
         ) {
             public InsuranceAssetItem {
                 Objects.requireNonNull(policyNumber, "policyNumber must not be null");

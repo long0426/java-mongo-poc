@@ -1,12 +1,12 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8090}
 
 spring:
   application:
     name: assets-service
   data:
     mongodb:
-      uri: ${ASSETS_MONGODB_URI:mongodb://mongo:mongo@localhost:27017/?authSource=admin&replicaSet=rs0}
+      uri: ${ASSETS_MONGODB_URI:mongodb://mongo:mongo@mongo:27017/?authSource=admin&replicaSet=rs0}
       database: ${ASSETS_MONGODB_DATABASE:assetdb}
 
 assets:

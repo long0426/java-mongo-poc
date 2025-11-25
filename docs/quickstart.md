@@ -16,7 +16,7 @@
 
 2. **設定環境變數（以 assets 模組為例）**
    ```bash
-   export ASSETS_MONGODB_URI="mongodb://mongo:mongo@localhost:27017/assetdb?authSource=admin"
+   export ASSETS_MONGODB_URI="mongodb://mongo:mongo@mongo:27017/?authSource=admin&replicaSet=rs0"
    export ASSETS_BANK_BASE_URL="http://localhost:8081"
    export ASSETS_SECURITIES_BASE_URL="http://localhost:8082"
    export ASSETS_INSURANCE_BASE_URL="http://localhost:8083"
@@ -30,7 +30,7 @@
    ./gradlew :bank:bootRun --args='--server.port=8081'
    ./gradlew :securities:bootRun --args='--server.port=8082'
    ./gradlew :insurance:bootRun --args='--server.port=8083'
-   ./gradlew :assets:bootRun --args='--server.port=8080'
+   ./gradlew :assets:bootRun --args='--server.port=8090'
    ```
 
 4. **驗證個別資產 API**
@@ -42,7 +42,7 @@
 
 5. **呼叫整合資產 API**
  ```bash
-  curl http://localhost:8080/assets/customers/123 | jq
+  curl http://localhost:8090/assets/customers/123 | jq
   ```
   - 回傳為 `asset_staging` 集合的 Mongo Document 陣列，可直接在 Swagger UI 的 Example 參考字段結構；若需篩選單一 trace，可利用 `traceId` 欄位。
 
@@ -50,7 +50,7 @@
    - Bank: `http://localhost:8081/swagger-ui.html`
    - Securities: `http://localhost:8082/swagger-ui.html`
    - Insurance: `http://localhost:8083/swagger-ui.html`
-   - Assets: `http://localhost:8080/swagger-ui.html`
+   - Assets: `http://localhost:8090/swagger-ui.html`
 
 7. **驗證 MongoDB 寫入**
    ```bash

@@ -14,6 +14,9 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Bank Asset API")
                         .version("v1")
-                        .description("銀行資產查詢 REST API"));
+                        .description("銀行資產查詢 REST API"))
+                .addServersItem(new io.swagger.v3.oas.models.servers.Server()
+                        .url("http://localhost:8081")
+                        .description("Generated server url"));
     }
 }

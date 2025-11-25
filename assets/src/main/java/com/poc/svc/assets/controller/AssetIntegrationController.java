@@ -1,9 +1,12 @@
 package com.poc.svc.assets.controller;
 
+import com.poc.svc.assets.dto.ErrorResponse;
 import com.poc.svc.assets.dto.api.AssetStagingDocumentExample;
 import com.poc.svc.assets.service.AssetAggregationService;
 import com.poc.svc.assets.util.TraceContext;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.bson.Document;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,13 +36,27 @@ public class AssetIntegrationController {
 
     @GetMapping
     @Operation(
+            operationId = "aggregateCustomerAssets",
             summary = "Aggregate all assets for a customer",
+            description = "呼叫銀行、證券、保險模擬服務並整合至 MongoDB asset_staging collection，回傳最新聚合結果。",
+            parameters = {
+                    @Parameter(
+                            name = "customerId",
+                            in = ParameterIn.PATH,
+                            required = true,
+                            description = "欲查詢的客戶識別碼"),
+                    @Parameter(
+                            name = TraceContext.TRACE_ID_HEADER,
+                            in = ParameterIn.HEADER,
+                            required = false,
+                            description = "跨服務追蹤用的 Trace ID，未提供時系統會建立")
+            },
             responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Aggregated asset staging documents",
                             content = @Content(
-                                    mediaType = "application/json",
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     array = @ArraySchema(schema = @Schema(implementation = AssetStagingDocumentExample.class)),
                                     examples = @ExampleObject(
                                             name = "assetStagingExample",
@@ -114,9 +132,25 @@ public class AssetIntegrationController {
                                                       }
                                                     ]
                                                     """
-                                    )
-                            )
-                    )
+                                    ))),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "查無客戶或聚合結果",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = "502",
+                            description = "下游資產來源不可用",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "系統內部錯誤",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     public ResponseEntity<List<Document>> aggregateCustomerAssets(

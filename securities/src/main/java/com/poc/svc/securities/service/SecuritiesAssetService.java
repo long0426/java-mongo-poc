@@ -4,6 +4,7 @@ import com.poc.svc.securities.logging.TraceContext;
 import com.poc.svc.securities.service.SecuritiesAssetService.SecuritiesAssetResponse.SecurityHolding;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -147,12 +148,17 @@ public class SecuritiesAssetService {
         }
     }
 
+    @Schema(name = "SecuritiesAssetResponse", description = "證券資產查詢回應")
     public record SecuritiesAssetResponse(
+            @Schema(description = "客戶識別碼", example = "cust-001", requiredMode = Schema.RequiredMode.REQUIRED)
             String customerId,
+            @Schema(description = "持有的證券清單", requiredMode = Schema.RequiredMode.REQUIRED)
             List<SecurityHolding> securitiesAssets,
+            @Schema(description = "總市值", example = "780000.00", requiredMode = Schema.RequiredMode.REQUIRED)
             BigDecimal totalMarketValue,
+            @Schema(description = "市值幣別", example = "TWD", requiredMode = Schema.RequiredMode.REQUIRED)
             String currency,
-            String traceId
+            @Schema(description = "Trace ID", example = "trace-abc") String traceId
     ) {
         public SecuritiesAssetResponse {
             Objects.requireNonNull(customerId, "customerId must not be null");
@@ -165,15 +171,16 @@ public class SecuritiesAssetService {
             return new SecuritiesAssetResponse(customerId, securitiesAssets, totalMarketValue, currency, traceId);
         }
 
+        @Schema(name = "SecurityHolding", description = "單一持有的證券")
         public record SecurityHolding(
-                String securityType,
-                String symbol,
-                String assetName,
-                Integer holdings,
-                BigDecimal marketValue,
-                String currency,
-                String riskLevel,
-                Instant lastUpdated
+                @Schema(description = "證券類型", example = "stock") String securityType,
+                @Schema(description = "證券代碼", example = "STK-101") String symbol,
+                @Schema(description = "資產名稱", example = "環球 STK-101") String assetName,
+                @Schema(description = "持有數量", example = "100") Integer holdings,
+                @Schema(description = "市值", example = "120000.00") BigDecimal marketValue,
+                @Schema(description = "幣別", example = "USD") String currency,
+                @Schema(description = "風險等級", example = "MEDIUM") String riskLevel,
+                @Schema(description = "最後更新時間", example = "2025-11-14T01:13:00Z") Instant lastUpdated
         ) {
             public SecurityHolding {
                 Objects.requireNonNull(securityType, "securityType must not be null");
