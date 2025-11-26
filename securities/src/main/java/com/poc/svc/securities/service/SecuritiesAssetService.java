@@ -154,7 +154,13 @@ public class SecuritiesAssetService {
             String customerId,
             @Schema(description = "持有的證券清單", requiredMode = Schema.RequiredMode.REQUIRED)
             List<SecurityHolding> securitiesAssets,
-            @Schema(description = "總市值", example = "780000.00", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(
+                    description = "總市值",
+                    type = "number",
+                    implementation = BigDecimal.class,
+                    format = "decimal",
+                    example = "780000.00",
+                    requiredMode = Schema.RequiredMode.REQUIRED)
             BigDecimal totalMarketValue,
             @Schema(description = "市值幣別", example = "TWD", requiredMode = Schema.RequiredMode.REQUIRED)
             String currency,
@@ -177,7 +183,12 @@ public class SecuritiesAssetService {
                 @Schema(description = "證券代碼", example = "STK-101") String symbol,
                 @Schema(description = "資產名稱", example = "環球 STK-101") String assetName,
                 @Schema(description = "持有數量", example = "100") Integer holdings,
-                @Schema(description = "市值", example = "120000.00") BigDecimal marketValue,
+                @Schema(
+                        description = "市值",
+                        type = "number",
+                        implementation = BigDecimal.class,
+                        format = "decimal",
+                        example = "120000.00") BigDecimal marketValue,
                 @Schema(description = "幣別", example = "USD") String currency,
                 @Schema(description = "風險等級", example = "MEDIUM") String riskLevel,
                 @Schema(description = "最後更新時間", example = "2025-11-14T01:13:00Z") Instant lastUpdated

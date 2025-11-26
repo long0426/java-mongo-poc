@@ -26,9 +26,11 @@ paths:
                     customerId: "1234567890"
                     bankAssets:
                       - accountId: "ACC-1000-1734710400000"
+                        assetName: "薪資帳戶"
                         balance: 235678.45
                         currency: TWD
                       - accountId: "ACC-1001-1734710400500"
+                        assetName: "外幣帳戶"
                         balance: 1250.00
                         currency: USD
                     totalBalance: 236928.45
@@ -66,33 +68,53 @@ components:
   schemas:
     BankAssetResponse:
       type: object
+      description: 銀行資產查詢的標準回應
       required: [customerId, bankAssets, totalBalance, currency, traceId]
       properties:
         customerId:
           type: string
+          description: 銀行核心系統使用的客戶識別碼
+          example: cust-001
         bankAssets:
           type: array
+          description: 客戶名下所有銀行資產清單
           items:
             $ref: '#/components/schemas/BankAssetItem'
         totalBalance:
           type: number
-          format: double
+          format: decimal
+          description: 銀行資產依照 currency 加總後的總額
+          example: 125000.5
         currency:
           type: string
+          description: totalBalance 的幣別
+          example: TWD
         traceId:
           type: string
+          description: 供追蹤本次 API 呼叫的識別碼
+          example: trace-7c8d
     BankAssetItem:
       type: object
-      required: [accountId, balance, currency]
+      description: 單一銀行資產的欄位結構
+      required: [accountId, assetName, balance, currency]
       properties:
         accountId:
           type: string
           description: Unique account identifier within the bank core
+          example: ACC-1000-1734710400000
+        assetName:
+          type: string
+          description: 資產/帳戶顯示名稱
+          example: 薪資帳戶
         balance:
           type: number
-          format: double
+          format: decimal
+          description: 帳戶目前餘額
+          example: 235678.45
         currency:
           type: string
+          description: 帳戶餘額的幣別
+          example: TWD
     ErrorResponse:
       type: object
       required: [code, message, traceId]

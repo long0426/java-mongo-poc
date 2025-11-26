@@ -146,7 +146,13 @@ public class InsuranceAssetService {
             String customerId,
             @Schema(description = "保戶持有的保單清單", requiredMode = Schema.RequiredMode.REQUIRED)
             List<InsuranceAssetItem> insuranceAssets,
-            @Schema(description = "保障總額", example = "2000000.00", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(
+                    description = "保障總額",
+                    type = "number",
+                    implementation = BigDecimal.class,
+                    format = "decimal",
+                    example = "2000000.00",
+                    requiredMode = Schema.RequiredMode.REQUIRED)
             BigDecimal totalCoverage,
             @Schema(description = "幣別", example = "TWD", requiredMode = Schema.RequiredMode.REQUIRED)
             String currency,
@@ -169,7 +175,12 @@ public class InsuranceAssetService {
                 @Schema(description = "保單號碼", example = "LIF-1000") String policyNumber,
                 @Schema(description = "保單種類", example = "life") String policyType,
                 @Schema(description = "方案名稱", example = "家庭守護 方案") String assetName,
-                @Schema(description = "保障金額", example = "500000.00") BigDecimal coverage,
+                @Schema(
+                        description = "保障金額",
+                        type = "number",
+                        implementation = BigDecimal.class,
+                        format = "decimal",
+                        example = "500000.00") BigDecimal coverage,
                 @Schema(description = "保費狀態", example = "paid") String premiumStatus,
                 @Schema(description = "幣別", example = "TWD") String currency,
                 @Schema(description = "最後更新時間", example = "2025-11-14T01:13:00Z") Instant lastUpdated

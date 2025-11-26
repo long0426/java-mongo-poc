@@ -20,6 +20,9 @@ public interface BankAssetService {
                     requiredMode = Schema.RequiredMode.REQUIRED) List<BankAssetItem> bankAssets,
             @Schema(
                     description = "資產總額",
+                    type = "number",
+                    implementation = BigDecimal.class,
+                    format = "decimal",
                     example = "125000.50",
                     requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal totalBalance,
             @Schema(
@@ -45,7 +48,12 @@ public interface BankAssetService {
         public record BankAssetItem(
                 @Schema(description = "資產對應帳號", example = "ACC-001") String accountId,
                 @Schema(description = "資產名稱", example = "Salary Account") String assetName,
-                @Schema(description = "資產餘額", example = "1000.00") BigDecimal balance,
+                @Schema(
+                        description = "資產餘額",
+                        type = "number",
+                        implementation = BigDecimal.class,
+                        format = "decimal",
+                        example = "1000.00") BigDecimal balance,
                 @Schema(description = "資產幣別", example = "TWD") String currency) {
             public BankAssetItem {
                 Objects.requireNonNull(accountId, "accountId must not be null");

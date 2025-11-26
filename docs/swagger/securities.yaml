@@ -25,6 +25,7 @@ paths:
                     customerId: "123"
                     securitiesAssets:
                       - securityType: stock
+                        assetName: "XYZ 科技"
                         symbol: XYZ
                         holdings: 100
                         marketValue: 56000
@@ -32,6 +33,7 @@ paths:
                         riskLevel: MEDIUM
                         lastUpdated: "2025-10-20T02:34:56Z"
                       - securityType: bond
+                        assetName: "美債 10Y"
                         symbol: US10Y
                         holdings: 50000
                         marketValue: 1500000
@@ -57,41 +59,69 @@ components:
   schemas:
     SecuritiesAssetResponse:
       type: object
+      description: 證券模組回傳的客戶資產資訊
       required: [customerId, securitiesAssets, totalMarketValue, currency, traceId]
       properties:
         customerId:
           type: string
+          description: 證券帳務系統使用的客戶識別碼
+          example: cust-001
         securitiesAssets:
           type: array
+          description: 客戶持有的證券清單
           items:
             $ref: '#/components/schemas/SecurityHolding'
         totalMarketValue:
           type: number
-          format: double
+          format: decimal
+          description: 所有證券資產折算 currency 的加總市值
+          example: 1556000
         currency:
           type: string
+          description: totalMarketValue 的幣別
+          example: TWD
         traceId:
           type: string
+          description: 追蹤本次證券查詢的識別碼
+          example: trace-a1b2c3d4
     SecurityHolding:
       type: object
-      required: [securityType, symbol, holdings, marketValue, currency, riskLevel, lastUpdated]
+      description: 單筆證券持有資訊
+      required: [securityType, symbol, assetName, holdings, marketValue, currency, riskLevel, lastUpdated]
       properties:
         securityType:
           type: string
+          description: 證券類型（stock、bond、fund 等）
+          example: stock
         symbol:
           type: string
+          description: 交易標的代碼
+          example: XYZ
+        assetName:
+          type: string
+          description: 顯示名稱或商品名稱
+          example: XYZ 科技
         holdings:
           type: number
+          description: 持有數量或口數
+          example: 100
         marketValue:
           type: number
-          format: double
+          format: decimal
+          description: 單筆資產的市值
+          example: 56000
         currency:
           type: string
+          description: 市值的幣別
+          example: TWD
         riskLevel:
           type: string
           description: Risk classification for the holding (LOW|MEDIUM|HIGH)
+          example: MEDIUM
         lastUpdated:
           type: string
           format: date-time
+          description: 資料最後更新時間（ISO-8601）
+          example: "2025-10-20T02:34:56Z"
     ErrorResponse:
       $ref: './bank.yaml#/components/schemas/ErrorResponse'
